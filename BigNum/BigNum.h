@@ -57,10 +57,16 @@ public:
 
 private:
     BigNum & unsignedAddEquals( const BigNum & rhs );
-
     friend BigNum unsignedAdd( BigNum lhs, const BigNum & rhs )
     {
         lhs.unsignedAddEquals( rhs );
+        return lhs;
+    }
+
+    BigNum & unsignedSubtractEquals( const BigNum & rhs );
+    friend BigNum unsignedSubtract( BigNum lhs, const BigNum & rhs )
+    {
+        lhs.unsignedSubtractEquals( rhs );
         return lhs;
     }
 
