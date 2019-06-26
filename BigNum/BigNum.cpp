@@ -149,6 +149,25 @@ BigNum & BigNum::operator+=( const BigNum & rhs )
     return *this;
 }
 
+BigNum & BigNum::operator-=( const BigNum & rhs )
+{
+    if( m_negative != rhs.m_negative )
+    {
+        unsignedAddEquals( rhs );
+    }
+    else if( compareMagnitude( rhs ) != Comparison::LessThan )
+    {
+        unsignedSubtractEquals( rhs );
+    }
+    else
+    {
+        m_negative = !m_negative;
+        *this = unsignedSubtract( rhs, *this );
+    }
+
+    return *this;
+}
+
 
 BigNum & BigNum::unsignedAddEquals( const BigNum & rhs )
 {
