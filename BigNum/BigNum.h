@@ -55,6 +55,13 @@ public:
     BigNum & operator=( const BigNum & other );
     BigNum & operator=( digit_t value );
 
+    BigNum & operator+=( const BigNum & rhs );
+    friend BigNum operator+( BigNum lhs, const BigNum & rhs )
+    {
+        lhs += rhs;
+        return lhs;
+    }
+
 private:
     BigNum & unsignedAddEquals( const BigNum & rhs );
     friend BigNum unsignedAdd( BigNum lhs, const BigNum & rhs )

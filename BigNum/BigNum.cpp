@@ -130,6 +130,26 @@ BigNum & BigNum::operator=( digit_t value )
     return *this;
 }
 
+BigNum & BigNum::operator+=( const BigNum & rhs )
+{
+    if( m_negative == rhs.m_negative )
+    {
+        unsignedAddEquals( rhs );
+    }
+    else if( compareMagnitude( rhs ) == Comparison::LessThan )
+    {
+        m_negative = rhs.m_negative;
+        *this = unsignedSubtract( rhs, *this );
+    }
+    else
+    {
+        unsignedSubtractEquals( rhs );
+    }
+
+    return *this;
+}
+
+
 BigNum & BigNum::unsignedAddEquals( const BigNum & rhs )
 {
     size_t maxUsed;
