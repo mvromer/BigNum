@@ -19,5 +19,13 @@ namespace BigNumTests
             Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
             Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
 		}
+
+        TEST_METHOD(TestMethod2)
+		{
+            BigNum a( 4 );
+            a = 4;
+            a.mul2();
+            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(8) );
+		}
 	};
 }

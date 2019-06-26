@@ -301,6 +301,39 @@ class BigNum & BigNum::unsignedSubtractEquals( const BigNum & rhs )
     return *this;
 }
 
+BigNum & BigNum::mul2()
+{
+    size_t minCapacity = m_numDigitsUsed + 1;
+    if( m_digits.size() < minCapacity )
+        grow( minCapacity );
+
+    size_t oldNumDigitsUsed = m_numDigitsUsed;
+    size_t iDigit;
+    digit_t carry = 0;
+    digit_t nextCarry = 0;
+
+    for( iDigit = 0; iDigit < m_numDigitsUsed; ++iDigit )
+    {
+        constexpr digit_t nextCarryShift = DigitBits - static_cast<digit_t>(1);
+        nextCarry = m_digits[iDigit] >> nextCarryShift;
+        m_digits[iDigit] = ((m_digits[iDigit] << static_cast<digit_t>(1)) | carry) & DigitMask;
+        carry = nextCarry;
+    }
+
+    if( carry != 0 )
+    {
+        m_digits[iDigit] = carry;
+        ++m_numDigitsUsed;
+    }
+
+    if( m_numDigitsUsed < (oldNumDigitsUsed - 1) )
+    {
+        for( iDigit = m_numDigitsUsed; iDigit < oldNumDigitsUsed; ++iDigit )
+            m_digits[iDigit] = 0;
+    }
+
+    return *this;
+}
 
 
 BigNum abs( const BigNum & x )
@@ -314,5 +347,12 @@ BigNum negate( const BigNum & x )
 {
     BigNum y( x );
     y.negate();
+    return y;
+}
+
+BigNum mul2( const BigNum & x )
+{
+    BigNum y( x );
+    y.mul2();
     return y;
 }

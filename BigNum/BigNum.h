@@ -44,13 +44,14 @@ public:
     void grow( size_t newCapacity );
     void clamp();
     void zero();
-    BigNum & abs();
-    BigNum & negate();
 
+    bool isZero() const { return m_numDigitsUsed == 0; }
     Comparison compareMagnitude( const BigNum & other ) const;
     Comparison compare( const BigNum & other ) const;
 
-    bool isZero() const { return m_numDigitsUsed == 0; }
+    BigNum & abs();
+    BigNum & negate();
+    BigNum & mul2();
 
     BigNum & operator=( const BigNum & other );
     BigNum & operator=( digit_t value );
@@ -92,5 +93,6 @@ private:
 
 BigNum abs( const BigNum & x );
 BigNum negate( const BigNum & x );
+BigNum mul2( const BigNum & x );
 
 #endif
