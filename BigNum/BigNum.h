@@ -51,7 +51,8 @@ public:
 
     BigNum & abs();
     BigNum & negate();
-    BigNum & mul2();
+    BigNum & multiplyByTwo();
+    BigNum & divideByTwo();
 
     BigNum & operator=( const BigNum & other );
     BigNum & operator=( digit_t value );
@@ -93,6 +94,7 @@ private:
 
 BigNum abs( const BigNum & x );
 BigNum negate( const BigNum & x );
-BigNum mul2( const BigNum & x );
+BigNum multiplyByTwo( const BigNum & x );
+BigNum divideByTwo( const BigNum & x );
 
 #endif

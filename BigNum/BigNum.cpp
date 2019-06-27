@@ -67,6 +67,66 @@ BigNum & BigNum::negate()
     return *this;
 }
 
+BigNum & BigNum::multiplyByTwo()
+{
+    const size_t minCapacity = m_numDigitsUsed + 1;
+    if( m_digits.size() < minCapacity )
+        grow( minCapacity );
+
+    const size_t oldNumDigitsUsed = m_numDigitsUsed;
+    size_t iDigit;
+    digit_t carry = 0;
+
+    for( iDigit = 0; iDigit < m_numDigitsUsed; ++iDigit )
+    {
+        constexpr digit_t nextCarryShift = DigitBits - static_cast<digit_t>(1);
+        const digit_t nextCarry = m_digits[iDigit] >> nextCarryShift;
+        m_digits[iDigit] = ((m_digits[iDigit] << static_cast<digit_t>(1)) | carry) & DigitMask;
+        carry = nextCarry;
+    }
+
+    if( carry != 0 )
+    {
+        m_digits[iDigit] = carry;
+        ++m_numDigitsUsed;
+    }
+
+    if( m_numDigitsUsed < (oldNumDigitsUsed - 1) )
+    {
+        for( iDigit = m_numDigitsUsed; iDigit < oldNumDigitsUsed; ++iDigit )
+            m_digits[iDigit] = 0;
+    }
+
+    return *this;
+}
+
+BigNum & BigNum::divideByTwo()
+{
+    const size_t oldNumDigitsUsed = m_numDigitsUsed;
+    size_t iDigit;
+    size_t riDigit;
+    digit_t carry = 0;
+
+    for( iDigit = 0, riDigit = m_numDigitsUsed - 1;
+        iDigit < m_numDigitsUsed;
+        ++iDigit, --riDigit )
+    {
+        constexpr digit_t carryShift = DigitBits - static_cast<digit_t>(1);
+        const digit_t nextCarry = m_digits[riDigit] & 1;
+        m_digits[riDigit] = (m_digits[riDigit] >> static_cast<digit_t>(1)) | (carry << carryShift);
+        carry = nextCarry;
+    }
+
+    if( m_numDigitsUsed < (oldNumDigitsUsed - 1) )
+    {
+        for( iDigit = m_numDigitsUsed; iDigit < oldNumDigitsUsed; ++iDigit )
+            m_digits[iDigit] = 0;
+    }
+
+    clamp();
+    return *this;
+}
+
 Comparison BigNum::compareMagnitude( const BigNum & other ) const
 {
     if( m_numDigitsUsed > other.m_numDigitsUsed )
@@ -301,41 +361,6 @@ class BigNum & BigNum::unsignedSubtractEquals( const BigNum & rhs )
     return *this;
 }
 
-BigNum & BigNum::mul2()
-{
-    size_t minCapacity = m_numDigitsUsed + 1;
-    if( m_digits.size() < minCapacity )
-        grow( minCapacity );
-
-    size_t oldNumDigitsUsed = m_numDigitsUsed;
-    size_t iDigit;
-    digit_t carry = 0;
-    digit_t nextCarry = 0;
-
-    for( iDigit = 0; iDigit < m_numDigitsUsed; ++iDigit )
-    {
-        constexpr digit_t nextCarryShift = DigitBits - static_cast<digit_t>(1);
-        nextCarry = m_digits[iDigit] >> nextCarryShift;
-        m_digits[iDigit] = ((m_digits[iDigit] << static_cast<digit_t>(1)) | carry) & DigitMask;
-        carry = nextCarry;
-    }
-
-    if( carry != 0 )
-    {
-        m_digits[iDigit] = carry;
-        ++m_numDigitsUsed;
-    }
-
-    if( m_numDigitsUsed < (oldNumDigitsUsed - 1) )
-    {
-        for( iDigit = m_numDigitsUsed; iDigit < oldNumDigitsUsed; ++iDigit )
-            m_digits[iDigit] = 0;
-    }
-
-    return *this;
-}
-
-
 BigNum abs( const BigNum & x )
 {
     BigNum y( x );
@@ -350,9 +375,16 @@ BigNum negate( const BigNum & x )
     return y;
 }
 
-BigNum mul2( const BigNum & x )
+BigNum multiplyByTwo( const BigNum & x )
 {
     BigNum y( x );
-    y.mul2();
+    y.multiplyByTwo();
+    return y;
+}
+
+BigNum divideByTwo( const BigNum & x )
+{
+    BigNum y( x );
+    y.divideByTwo();
     return y;
 }

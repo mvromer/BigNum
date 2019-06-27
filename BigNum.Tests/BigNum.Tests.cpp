@@ -10,7 +10,7 @@ namespace BigNumTests
 	{
 	public:
 		
-		TEST_METHOD(TestMethod1)
+        TEST_METHOD( TestAssignment )
 		{
             BigNum a( 4 );
             a = 1;
@@ -20,12 +20,20 @@ namespace BigNumTests
             Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
 		}
 
-        TEST_METHOD(TestMethod2)
+        TEST_METHOD( TestMultiplyByTwo )
 		{
             BigNum a( 4 );
             a = 4;
-            a.mul2();
+            a.multiplyByTwo();
             Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(8) );
 		}
+
+        TEST_METHOD( TestDivideByTwo )
+        {
+            BigNum a( 4 );
+            a = 8;
+            a.divideByTwo();
+            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(4) );
+        }
 	};
 }
