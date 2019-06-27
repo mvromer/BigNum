@@ -153,6 +153,35 @@ BigNum & BigNum::leftDigitShift( size_t numDigits )
     return *this;
 }
 
+BigNum & BigNum::rightDigitShift( size_t numDigits )
+{
+    if( numDigits == 0 )
+        return *this;
+
+    if( m_numDigitsUsed <= numDigits )
+    {
+        zero();
+        return *this;
+    }
+
+    size_t iTrail = 0;
+    size_t iLead = numDigits;
+    const size_t newNumDigitsUsed = m_numDigitsUsed - numDigits;
+
+    for( size_t iStep = 0; iStep < newNumDigitsUsed; ++iStep )
+    {
+        m_digits[iTrail] = m_digits[iLead];
+        --iTrail;
+        --iLead;
+    }
+
+    for( size_t iDigit = newNumDigitsUsed; iDigit < m_numDigitsUsed; ++iDigit )
+        m_digits[iDigit] = 0;
+
+    m_numDigitsUsed = newNumDigitsUsed;
+    return *this;
+}
+
 Comparison BigNum::compareMagnitude( const BigNum & other ) const
 {
     if( m_numDigitsUsed > other.m_numDigitsUsed )
@@ -419,5 +448,12 @@ BigNum leftDigitShift( const BigNum & x, size_t numDigits )
 {
     BigNum y( x );
     y.leftDigitShift( numDigits );
+    return y;
+}
+
+BigNum rightDigitShift( const BigNum & x, size_t numDigits )
+{
+    BigNum y( x );
+    y.rightDigitShift( numDigits );
     return y;
 }
