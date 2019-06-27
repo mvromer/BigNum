@@ -53,6 +53,8 @@ public:
     BigNum & negate();
     BigNum & multiplyByTwo();
     BigNum & divideByTwo();
+    
+    BigNum & leftDigitShift( size_t numDigits );
 
     BigNum & operator=( const BigNum & other );
     BigNum & operator=( digit_t value );
@@ -96,5 +98,6 @@ BigNum abs( const BigNum & x );
 BigNum negate( const BigNum & x );
 BigNum multiplyByTwo( const BigNum & x );
 BigNum divideByTwo( const BigNum & x );
+BigNum leftDigitShift( const BigNum & x, size_t numDigits );
 
 #endif

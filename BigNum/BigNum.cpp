@@ -127,6 +127,32 @@ BigNum & BigNum::divideByTwo()
     return *this;
 }
 
+BigNum & BigNum::leftDigitShift( size_t numDigits )
+{
+    if( numDigits == 0 )
+        return *this;
+
+    const size_t minCapacity = m_numDigitsUsed + numDigits;
+    if( m_digits.size() < minCapacity )
+        grow( minCapacity );
+
+    m_numDigitsUsed += numDigits;
+    size_t iLead = m_numDigitsUsed - 1;
+    size_t iTrail = iLead - numDigits;
+
+    for( size_t iStep = m_numDigitsUsed - 1; iStep >= numDigits; --iStep )
+    {
+        m_digits[iLead] = m_digits[iTrail];
+        --iLead;
+        --iTrail;
+    }
+
+    for( size_t iDigit = 0; iDigit < numDigits; ++iDigit )
+        m_digits[iDigit] = 0;
+
+    return *this;
+}
+
 Comparison BigNum::compareMagnitude( const BigNum & other ) const
 {
     if( m_numDigitsUsed > other.m_numDigitsUsed )
@@ -386,5 +412,12 @@ BigNum divideByTwo( const BigNum & x )
 {
     BigNum y( x );
     y.divideByTwo();
+    return y;
+}
+
+BigNum leftDigitShift( const BigNum & x, size_t numDigits )
+{
+    BigNum y( x );
+    y.leftDigitShift( numDigits );
     return y;
 }
