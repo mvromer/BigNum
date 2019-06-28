@@ -97,5 +97,28 @@ namespace BigNumTests
             Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
             Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
         }
+
+        TEST_METHOD( TestMod2B )
+        {
+            BigNum a( 4 );
+            a = 1;
+
+            BigNum b( 4 );
+            b = 1;
+            b <<= 31;
+
+            BigNum c( 4 );
+            c = a + b;
+            Assert::AreEqual( c[0], static_cast<BigNum::digit_t>(1) );
+            Assert::AreEqual( c[1], static_cast<BigNum::digit_t>(1) );
+            Assert::AreEqual( c[2], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( c[3], static_cast<BigNum::digit_t>(0) );
+
+            c.mod2b( 31 );
+            Assert::AreEqual( c[0], static_cast<BigNum::digit_t>(1) );
+            Assert::AreEqual( c[1], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( c[2], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( c[3], static_cast<BigNum::digit_t>(0) );
+        }
 	};
 }

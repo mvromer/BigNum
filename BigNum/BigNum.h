@@ -57,6 +57,8 @@ public:
     BigNum & leftDigitShift( size_t numDigits );
     BigNum & rightDigitShift( size_t numDigits );
 
+    BigNum & mod2b( size_t b );
+
     BigNum & operator=( const BigNum & other );
     BigNum & operator=( digit_t value );
 
@@ -115,5 +117,6 @@ BigNum multiplyByTwo( const BigNum & x );
 BigNum divideByTwo( const BigNum & x );
 BigNum leftDigitShift( const BigNum & x, size_t numDigits );
 BigNum rightDigitShift( const BigNum & x, size_t numDigits );
+BigNum mod2b( const BigNum & x, size_t b );
 
 #endif

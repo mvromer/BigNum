@@ -184,6 +184,32 @@ BigNum & BigNum::rightDigitShift( size_t numDigits )
     return *this;
 }
 
+BigNum & BigNum::mod2b( size_t b )
+{
+    if( b == 0 )
+    {
+        zero();
+        return *this;
+    }
+
+    if( b > m_numDigitsUsed * DigitBits )
+        return *this;
+
+    // Zero out all digits that are completely outside the modulus.
+    const size_t iFirstToZero = (b / DigitBits) + ((b % DigitBits) == 0 ? 0 : 1);
+    for( size_t iDigit = iFirstToZero; iDigit < m_numDigitsUsed; ++iDigit )
+        m_digits[iDigit] = 0;
+
+    // Clear out the appropriate bits in the digit that is not completely in/out of the modulus.
+    const size_t iBoundaryDigit = b / DigitBits;
+    const size_t residualMask = (DigitOne << (b % DigitBits)) - DigitOne;
+    m_digits[iBoundaryDigit] &= residualMask;
+
+    clamp();
+    return *this;
+}
+
+
 Comparison BigNum::compareMagnitude( const BigNum & other ) const
 {
     if( m_numDigitsUsed > other.m_numDigitsUsed )
@@ -524,5 +550,12 @@ BigNum rightDigitShift( const BigNum & x, size_t numDigits )
 {
     BigNum y( x );
     y.rightDigitShift( numDigits );
+    return y;
+}
+
+BigNum mod2b( const BigNum & x, size_t b )
+{
+    BigNum y( x );
+    y.mod2b( b );
     return y;
 }
