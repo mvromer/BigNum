@@ -8,12 +8,14 @@ namespace
 
 constexpr size_t BaseCapacity = 4;
 
+constexpr  BigNum::digit_t DigitOne = static_cast<BigNum::digit_t>(1);
+
 // Number of bits in a digit contributing to the value of that digit. If this value is x, then the
 // radix of a BigNum is 2^x .
 constexpr BigNum::digit_t DigitBits = 31;
 
 // Compute a bit mask that will extract all DigitBits number of bits in a single digit.
-constexpr BigNum::digit_t DigitMask = (static_cast<BigNum::digit_t>(1) << DigitBits) - static_cast<BigNum::digit_t>(1);
+constexpr BigNum::digit_t DigitMask = (DigitOne << DigitBits) - DigitOne;
 
 // Number of bits in a single precision digit.
 constexpr BigNum::digit_t DigitBitSize = CHAR_BIT * sizeof(BigNum::digit_t);
@@ -79,9 +81,9 @@ BigNum & BigNum::multiplyByTwo()
 
     for( iDigit = 0; iDigit < m_numDigitsUsed; ++iDigit )
     {
-        constexpr digit_t nextCarryShift = DigitBits - static_cast<digit_t>(1);
+        constexpr digit_t nextCarryShift = DigitBits - DigitOne;
         const digit_t nextCarry = m_digits[iDigit] >> nextCarryShift;
-        m_digits[iDigit] = ((m_digits[iDigit] << static_cast<digit_t>(1)) | carry) & DigitMask;
+        m_digits[iDigit] = ((m_digits[iDigit] << DigitOne) | carry) & DigitMask;
         carry = nextCarry;
     }
 
@@ -111,9 +113,9 @@ BigNum & BigNum::divideByTwo()
         iDigit < m_numDigitsUsed;
         ++iDigit, --riDigit )
     {
-        constexpr digit_t carryShift = DigitBits - static_cast<digit_t>(1);
-        const digit_t nextCarry = m_digits[riDigit] & 1;
-        m_digits[riDigit] = (m_digits[riDigit] >> static_cast<digit_t>(1)) | (carry << carryShift);
+        constexpr digit_t carryShift = DigitBits - DigitOne;
+        const digit_t nextCarry = m_digits[riDigit] & DigitOne;
+        m_digits[riDigit] = (m_digits[riDigit] >> DigitOne) | (carry << carryShift);
         carry = nextCarry;
     }
 
@@ -283,6 +285,40 @@ BigNum & BigNum::operator-=( const BigNum & rhs )
     return *this;
 }
 
+BigNum & BigNum::operator<<=( size_t numBits )
+{
+    const size_t newCapacity = m_numDigitsUsed + numBits / DigitBits + 1;
+    if( m_digits.size() < newCapacity )
+        grow( newCapacity );
+
+    // Shift by whole digits first.
+    if( numBits >= DigitBits )
+        leftDigitShift( numBits / DigitBits );
+
+    // Shift the remaining number of bits not covered previously by the digit shift.
+    numBits %= DigitBits;
+
+    if( numBits != 0 )
+    {
+        const digit_t mask = (DigitOne << numBits) - DigitOne;
+        digit_t carry = 0;
+
+        for( size_t iDigit = 0; iDigit < m_numDigitsUsed; ++iDigit )
+        {
+            const digit_t nextCarry = (m_digits[iDigit] >> (DigitBits - numBits)) & mask;
+            m_digits[iDigit] = ((m_digits[iDigit] << numBits) | carry) & DigitMask;
+            carry = nextCarry;
+        }
+
+        if( carry > 0 )
+        {
+            m_digits[m_numDigitsUsed] = carry;
+            ++m_numDigitsUsed;
+        }
+    }
+
+    return *this;
+}
 
 BigNum & BigNum::unsignedAddEquals( const BigNum & rhs )
 {
@@ -378,7 +414,7 @@ class BigNum & BigNum::unsignedSubtractEquals( const BigNum & rhs )
         // is an optimization that pulls out the carry bit that propagated to the most significant
         // bit in the computed difference. This only works on machines that perform 2's complement
         // arithmetic, which is valid for x86/x64 and RISC-V.
-        carry = m_digits[iDigit] >> (DigitBitSize - 1);
+        carry = m_digits[iDigit] >> (DigitBitSize - DigitOne);
 
         // Clear out the carry bits from this iteration's difference.
         m_digits[iDigit] &= DigitMask;
@@ -396,7 +432,7 @@ class BigNum & BigNum::unsignedSubtractEquals( const BigNum & rhs )
             // is an optimization that pulls out the carry bit that propagated to the most significant
             // bit in the computed difference. This only works on machines that perform 2's complement
             // arithmetic, which is valid for x86/x64 and RISC-V.
-            carry = m_digits[iDigit] >> (DigitBitSize - 1);
+            carry = m_digits[iDigit] >> (DigitBitSize - DigitOne);
 
             // Clear out the carry bits from this iteration's difference.
             m_digits[iDigit] &= DigitMask;

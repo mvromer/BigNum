@@ -74,6 +74,13 @@ public:
         return lhs;
     }
 
+    BigNum & operator<<=( size_t numBits );
+    friend BigNum operator<<( BigNum lhs, size_t numBits )
+    {
+        lhs <<= numBits;
+        return lhs;
+    }
+
 private:
     BigNum & unsignedAddEquals( const BigNum & rhs );
     friend BigNum unsignedAdd( BigNum lhs, const BigNum & rhs )
