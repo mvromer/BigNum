@@ -301,11 +301,12 @@ BigNum & BigNum::operator<<=( size_t numBits )
     if( numBits != 0 )
     {
         const digit_t mask = (DigitOne << numBits) - DigitOne;
+        const digit_t carryShift = DigitBits - numBits;
         digit_t carry = 0;
 
         for( size_t iDigit = 0; iDigit < m_numDigitsUsed; ++iDigit )
         {
-            const digit_t nextCarry = (m_digits[iDigit] >> (DigitBits - numBits)) & mask;
+            const digit_t nextCarry = (m_digits[iDigit] >> carryShift) & mask;
             m_digits[iDigit] = ((m_digits[iDigit] << numBits) | carry) & DigitMask;
             carry = nextCarry;
         }
@@ -317,6 +318,38 @@ BigNum & BigNum::operator<<=( size_t numBits )
         }
     }
 
+    return *this;
+}
+
+BigNum & BigNum::operator>>=( size_t numBits )
+{
+    if( numBits == 0 )
+        return *this;
+
+    // Shift by whole digits first.
+    if( numBits >= DigitBits )
+        rightDigitShift( numBits / DigitBits );
+
+    // Shift the remaining number of bits not covered by the previous digit shift.
+    numBits %= DigitBits;
+
+    if( numBits != 0 )
+    {
+        const digit_t mask = (DigitOne << numBits) - DigitOne;
+        const digit_t carryShift = DigitBits - numBits;
+        digit_t carry = 0;
+
+        for( size_t iDigit = 0, riDigit = m_numDigitsUsed - 1;
+            iDigit < m_numDigitsUsed;
+            ++iDigit, --riDigit )
+        {
+            const digit_t nextCarry = m_digits[iDigit] & mask;
+            m_digits[iDigit] = (m_digits[iDigit] >> numBits) | (carry << carryShift);
+            carry = nextCarry;
+        }
+    }
+
+    clamp();
     return *this;
 }
 
