@@ -34,6 +34,7 @@ class BigNum
 {
 public:
     typedef uint32_t digit_t;
+    typedef uint64_t word_t;
 
 public:
     BigNum( size_t capacity );
@@ -76,6 +77,13 @@ public:
         return lhs;
     }
 
+    BigNum & operator*=( const BigNum & rhs );
+    friend BigNum operator*( BigNum lhs, const BigNum & rhs )
+    {
+        lhs *= rhs;
+        return lhs;
+    }
+
     BigNum & operator<<=( size_t numBits );
     friend BigNum operator<<( BigNum lhs, size_t numBits )
     {
@@ -104,6 +112,8 @@ private:
         lhs.unsignedSubtractEquals( rhs );
         return lhs;
     }
+
+    BigNum & baselineMultiply( const BigNum & rhs, size_t numDigits );
 
 private:
     bool m_negative;

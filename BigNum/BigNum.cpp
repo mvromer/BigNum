@@ -311,6 +311,13 @@ BigNum & BigNum::operator-=( const BigNum & rhs )
     return *this;
 }
 
+BigNum & BigNum::operator*=( const BigNum & rhs )
+{
+    m_negative = (m_negative == rhs.m_negative);
+    baselineMultiply( rhs, m_numDigitsUsed + rhs.m_numDigitsUsed + 1 );
+    return *this;
+}
+
 BigNum & BigNum::operator<<=( size_t numBits )
 {
     const size_t newCapacity = m_numDigitsUsed + numBits / DigitBits + 1;
@@ -452,7 +459,7 @@ BigNum & BigNum::unsignedAddEquals( const BigNum & rhs )
     return *this;
 }
 
-class BigNum & BigNum::unsignedSubtractEquals( const BigNum & rhs )
+BigNum & BigNum::unsignedSubtractEquals( const BigNum & rhs )
 {
     size_t minUsed = rhs.m_numDigitsUsed;
     size_t maxUsed = m_numDigitsUsed;
@@ -510,6 +517,43 @@ class BigNum & BigNum::unsignedSubtractEquals( const BigNum & rhs )
     clamp();
     return *this;
 }
+
+BigNum & BigNum::baselineMultiply( const BigNum & rhs, size_t numDigits )
+{
+    BigNum temp( numDigits );
+    temp.m_numDigitsUsed = numDigits;
+
+    for( size_t iDigitThis = 0; iDigitThis < m_numDigitsUsed; ++iDigitThis )
+    {
+        digit_t carry = 0;
+        const size_t numDigitsRhs = std::min( rhs.m_numDigitsUsed, numDigits - iDigitThis );
+
+        if( numDigitsRhs < 1 )
+            break;
+
+        for( size_t iDigitRhs = 0; iDigitRhs < numDigitsRhs; ++iDigitRhs )
+        {
+            const size_t iDigitTemp = iDigitThis + iDigitRhs;
+            const word_t product = (static_cast<word_t>(temp.m_digits[iDigitTemp]) +
+                static_cast<word_t>(m_digits[iDigitThis]) *
+                static_cast<word_t>(rhs.m_digits[iDigitRhs]) +
+                static_cast<word_t>(carry));
+
+            temp.m_digits[iDigitTemp] = product & static_cast<word_t>(DigitMask);
+            carry = static_cast<digit_t>(product >> static_cast<word_t>(DigitBits));
+        }
+
+        if( (iDigitThis + numDigitsRhs) < numDigits )
+            temp.m_digits[iDigitThis + numDigitsRhs] = carry;
+    }
+
+    temp.clamp();
+    m_numDigitsUsed = temp.m_numDigitsUsed;
+    m_digits = std::move( temp.m_digits );
+
+    return *this;
+}
+
 
 BigNum abs( const BigNum & x )
 {

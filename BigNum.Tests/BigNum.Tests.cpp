@@ -120,5 +120,40 @@ namespace BigNumTests
             Assert::AreEqual( c[2], static_cast<BigNum::digit_t>(0) );
             Assert::AreEqual( c[3], static_cast<BigNum::digit_t>(0) );
         }
+
+        TEST_METHOD( TestSimpleMultiply )
+        {
+            BigNum a( 4 );
+            a = 2;
+
+            BigNum b( 4 );
+            b = 2;
+
+            a *= b;
+            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(4) );
+            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+        }
+
+        TEST_METHOD( TestMultiDigitMultiply )
+        {
+            BigNum a( 4 );
+            a = 2;
+
+            BigNum b( 4 );
+            b = 2;
+            b <<= 31;
+            Assert::AreEqual( b[0], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( b[1], static_cast<BigNum::digit_t>(2) );
+            Assert::AreEqual( b[2], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( b[3], static_cast<BigNum::digit_t>(0) );
+
+            a *= b;
+            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(4) );
+            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
+            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+        }
 	};
 }
