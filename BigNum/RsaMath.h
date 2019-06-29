@@ -3,6 +3,6 @@
 
 #include "BigNum.h"
 
-void compute_rsa_inverse( const BigNum & n, BigNum & nInv );
+BigNum compute_rsa_inverse( const BigNum & n );
 
 #endif

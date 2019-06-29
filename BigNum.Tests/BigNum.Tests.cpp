@@ -159,11 +159,13 @@ namespace BigNumTests
 
         TEST_METHOD( TestRsaInverse )
         {
-            BigNum a( 4 );
-            a = 31;
+            BigNum a;
+            BigNum expected;
 
-            BigNum aInv( 4 );
-            compute_rsa_inverse( a, aInv );
+            a = 31;
+            expected = 1039104991;
+            BigNum aInv = compute_rsa_inverse( a );
+            Assert::IsTrue( expected.compare( aInv ) == Comparison::Equal );
         }
 	};
 }

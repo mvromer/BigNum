@@ -8,26 +8,24 @@
 // Under these assumptions, we know N is odd because practical RSA enforces it to be a product
 // of two large primes. Our radix b is determined at compile time and is even.
 //
-void compute_rsa_inverse( const BigNum & n, BigNum & nInv )
+BigNum compute_rsa_inverse( const BigNum & n )
 {
-    BigNum a( n );
-
     // Represent our radix, which is 2^(DigitBits). For purposes of corresponding with variables
-    // given in HAC, b and n here refer to x and y in HAC, respectively.
+    // given in HAC, n and x here refer to x and y in HAC, respectively.
     BigNum b( n.numberDigits() );
     b = 1;
     b <<= DigitBits;
 
-    BigNum x( a );
+    BigNum x( n );
     BigNum y( b );
 
     BigNum u( x );
     BigNum v( y );
 
-    BigNum A( a.numberDigits() );
-    BigNum B( a.numberDigits() );
-    BigNum C( a.numberDigits() );
-    BigNum D( a.numberDigits() );
+    BigNum A( n.numberDigits() );
+    BigNum B( n.numberDigits() );
+    BigNum C( n.numberDigits() );
+    BigNum D( n.numberDigits() );
 
     A = 1;
     D = 1;
@@ -83,5 +81,5 @@ void compute_rsa_inverse( const BigNum & n, BigNum & nInv )
     while( C.compare( b ) != Comparison::LessThan )
         C -= b;
 
-    nInv = C;
+    return C;
 }
