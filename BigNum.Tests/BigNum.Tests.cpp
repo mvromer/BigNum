@@ -159,13 +159,12 @@ namespace BigNumTests
 
         TEST_METHOD( TestRsaInverse )
         {
+            BigNum::digit_t expected = 1039104991;
             BigNum a;
-            BigNum expected;
-
             a = 31;
-            expected = 1039104991;
-            BigNum aInv = compute_montgomery_exponentiation_inverse( a );
-            Assert::IsTrue( expected.compare( aInv ) == Comparison::Equal );
+
+            BigNum::digit_t aInv = compute_montgomery_exponentiation_inverse( a );
+            Assert::IsTrue( expected == aInv );
         }
 	};
 }

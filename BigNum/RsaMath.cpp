@@ -11,7 +11,7 @@
 // Under these assumptions, we know N is odd because practical application of RSA enforces it
 // to be a product of two large primes. Our radix b is determined at compile time and is even.
 //
-BigNum compute_montgomery_exponentiation_inverse( const BigNum & n )
+BigNum::digit_t compute_montgomery_exponentiation_inverse( const BigNum & n )
 {
     // Represent our radix, which is 2^(DigitBits). For purposes of corresponding with variables
     // given in HAC, n and x here refer to x and y in HAC, respectively.
@@ -89,5 +89,6 @@ BigNum compute_montgomery_exponentiation_inverse( const BigNum & n )
     while( C.compare( b ) != Comparison::LessThan )
         C -= b;
 
-    return C;
+    // Since we reduced mod b, the final answer is in the least significant digit of C.
+    return C.getDigit( 0 );
 }

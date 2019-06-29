@@ -44,6 +44,7 @@ public:
     const digit_t & operator[]( std::size_t iDigit ) const { return m_digits[iDigit]; }
 
     size_t numberDigits() const { return m_digits.size();  }
+    digit_t getDigit( size_t iDigit ) const { return m_digits[iDigit]; }
 
     void grow( size_t newCapacity );
     void clamp();

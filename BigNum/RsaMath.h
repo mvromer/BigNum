@@ -3,6 +3,6 @@
 
 #include "BigNum.h"
 
-BigNum compute_montgomery_exponentiation_inverse( const BigNum & n );
+BigNum::digit_t compute_montgomery_exponentiation_inverse( const BigNum & n );
 
 #endif
