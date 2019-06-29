@@ -308,6 +308,32 @@ BigNum & BigNum::operator*=( const BigNum & rhs )
     return *this;
 }
 
+BigNum & BigNum::operator*=( digit_t rhs )
+{
+    const size_t oldNumDigitsUsed = m_numDigitsUsed;
+    grow( oldNumDigitsUsed + 1 );
+
+    m_numDigitsUsed = oldNumDigitsUsed + 1;
+    digit_t carry = 0;
+    constexpr auto digitMask = static_cast<word_t>(DigitMask);
+    constexpr auto digitBits = static_cast<word_t>(DigitBits);
+
+    for( size_t iDigit = 0; iDigit < oldNumDigitsUsed; ++iDigit )
+    {
+        const word_t r = static_cast<word_t>(carry) +
+            static_cast<word_t>(m_digits[iDigit]) *
+            static_cast<word_t>(rhs);
+
+        m_digits[iDigit] = static_cast<digit_t>(r & digitMask);
+        carry = static_cast<digit_t>(r >> digitBits);
+    }
+
+    m_digits[oldNumDigitsUsed] = carry;
+
+    clamp();
+    return *this;
+}
+
 BigNum & BigNum::operator<<=( size_t numBits )
 {
     const size_t newCapacity = m_numDigitsUsed + numBits / DigitBits + 1;

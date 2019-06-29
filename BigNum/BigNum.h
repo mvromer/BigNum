@@ -91,6 +91,13 @@ public:
         return lhs;
     }
 
+    BigNum & operator*=( digit_t rhs );
+    friend BigNum operator*( BigNum lhs, digit_t rhs )
+    {
+        lhs *= rhs;
+        return lhs;
+    }
+
     BigNum & operator<<=( size_t numBits );
     friend BigNum operator<<( BigNum lhs, size_t numBits )
     {

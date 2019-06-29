@@ -157,7 +157,7 @@ namespace BigNumTests
             Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
         }
 
-        TEST_METHOD( TestRsaInverse )
+        TEST_METHOD( TestMontgomeryMultiplyInverse )
         {
             BigNum::digit_t expected = 1039104991;
             BigNum a;
@@ -165,6 +165,18 @@ namespace BigNumTests
 
             BigNum::digit_t aInv = compute_montgomery_exponentiation_inverse( a );
             Assert::IsTrue( expected == aInv );
+        }
+
+        TEST_METHOD( TestSingleDigitMultiply )
+        {
+            BigNum expected;
+            expected = 16;
+
+            BigNum a;
+            a = 2;
+
+            BigNum actual = a * 8;
+            Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 	};
 }
