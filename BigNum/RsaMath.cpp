@@ -1,31 +1,30 @@
-﻿#include "RsaMath.h"
+﻿#include <stdexcept>
+
+#include "RsaMath.h"
 
 // Adapted from section 14.4.3 in Handbook of Applied Cryptography. Designed specifically for
 // computing inverse of the RSA modulus N such that NN' + RR' = 1 given that R > N and that
 // R is a power of two, specifically a power of the BigNum radix. In particular, this will
 // find the inverse N' such that NN' = 1 (mod b) where b is the BigNum radix.
 //
-// Under these assumptions, we know N is odd because practical RSA enforces it to be a product
-// of two large primes. Our radix b is determined at compile time and is even.
+// Under these assumptions, we know N is odd because practical application of RSA enforces it
+// to be a product of two large primes. Our radix b is determined at compile time and is even.
 //
 BigNum compute_rsa_inverse( const BigNum & n )
 {
     // Represent our radix, which is 2^(DigitBits). For purposes of corresponding with variables
     // given in HAC, n and x here refer to x and y in HAC, respectively.
-    BigNum b( n.numberDigits() );
+    BigNum b;
     b = 1;
     b <<= DigitBits;
 
-    BigNum x( n );
-    BigNum y( b );
+    BigNum u( n );
+    BigNum v( b );
 
-    BigNum u( x );
-    BigNum v( y );
-
-    BigNum A( n.numberDigits() );
-    BigNum B( n.numberDigits() );
-    BigNum C( n.numberDigits() );
-    BigNum D( n.numberDigits() );
+    BigNum A;
+    BigNum B;
+    BigNum C;
+    BigNum D;
 
     A = 1;
     D = 1;
@@ -38,8 +37,8 @@ BigNum compute_rsa_inverse( const BigNum & n )
 
             if( A.isOdd() || B.isOdd() )
             {
-                A += y;
-                B -= x;
+                A += b;
+                B -= n;
             }
 
             A.divideByTwo();
@@ -52,8 +51,8 @@ BigNum compute_rsa_inverse( const BigNum & n )
 
             if( C.isOdd() || D.isOdd() )
             {
-                C += y;
-                D -= x;
+                C += b;
+                D -= n;
             }
 
             C.divideByTwo();
@@ -74,7 +73,15 @@ BigNum compute_rsa_inverse( const BigNum & n )
         }
     } while( !u.isZero() );
 
-    const BigNum zero( C.numberDigits() );
+    // If v is not 1, then we somehow picked a bad RSA modulus, because it means that n and b
+    // are NOT coprime, which is a precondition for this function.
+    BigNum one;
+    one = 1;
+    if( v.compare( one ) != Comparison::Equal )
+        throw std::invalid_argument( "n must be coprime to be" );
+
+    // Make sure computed modulus is in the range [0, b).
+    const BigNum zero;
     while( C.compare( zero ) != Comparison::GreaterThan )
         C += b;
 
