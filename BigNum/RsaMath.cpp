@@ -2,15 +2,16 @@
 
 #include "RsaMath.h"
 
-// Adapted from section 14.4.3 in Handbook of Applied Cryptography. Designed specifically for
-// computing inverse of the RSA modulus N such that NN' + RR' = 1 given that R > N and that
-// R is a power of two, specifically a power of the BigNum radix. In particular, this will
-// find the inverse N' such that NN' = 1 (mod b) where b is the BigNum radix.
+// Adapted from binary extended GCD algorithm given in section 14.4.3 in Handbook of Applied
+// Cryptography. Designed specifically for computing inverse of the RSA modulus N such that
+// NN' + RR' = 1 given that R > N and that R is a power of two, specifically a power of the
+// BigNum radix. In particular, this will find the inverse N' such that NN' = 1 (mod b) where
+// b is the BigNum radix. Expected to be used when performing Montgomery exponentiation.
 //
 // Under these assumptions, we know N is odd because practical application of RSA enforces it
 // to be a product of two large primes. Our radix b is determined at compile time and is even.
 //
-BigNum compute_rsa_inverse( const BigNum & n )
+BigNum compute_montgomery_exponentiation_inverse( const BigNum & n )
 {
     // Represent our radix, which is 2^(DigitBits). For purposes of corresponding with variables
     // given in HAC, n and x here refer to x and y in HAC, respectively.

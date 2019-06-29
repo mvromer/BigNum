@@ -164,7 +164,7 @@ namespace BigNumTests
 
             a = 31;
             expected = 1039104991;
-            BigNum aInv = compute_rsa_inverse( a );
+            BigNum aInv = compute_montgomery_exponentiation_inverse( a );
             Assert::IsTrue( expected.compare( aInv ) == Comparison::Equal );
         }
 	};

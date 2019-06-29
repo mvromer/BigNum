@@ -3,6 +3,6 @@
 
 #include "BigNum.h"
 
-BigNum compute_rsa_inverse( const BigNum & n );
+BigNum compute_montgomery_exponentiation_inverse( const BigNum & n );
 
 #endif
