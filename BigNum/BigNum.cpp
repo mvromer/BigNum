@@ -8,19 +8,9 @@ namespace
 
 constexpr size_t BaseCapacity = 4;
 
-constexpr  BigNum::digit_t DigitOne = static_cast<BigNum::digit_t>(1);
-
-// Number of bits in a digit contributing to the value of that digit. If this value is x, then the
-// radix of a BigNum is 2^x .
-constexpr BigNum::digit_t DigitBits = 31;
-
-// Compute a bit mask that will extract all DigitBits number of bits in a single digit.
-constexpr BigNum::digit_t DigitMask = (DigitOne << DigitBits) - DigitOne;
-
-// Number of bits in a single precision digit.
-constexpr BigNum::digit_t DigitBitSize = CHAR_BIT * sizeof(BigNum::digit_t);
-
 }
+
+BigNum::BigNum() : BigNum( BaseCapacity ) { }
 
 BigNum::BigNum( size_t capacity ) :
     m_negative( false ),
@@ -281,7 +271,6 @@ BigNum & BigNum::operator+=( const BigNum & rhs )
     }
     else if( compareMagnitude( rhs ) == Comparison::LessThan )
     {
-        m_negative = rhs.m_negative;
         *this = unsignedSubtract( rhs, *this );
     }
     else
@@ -304,8 +293,9 @@ BigNum & BigNum::operator-=( const BigNum & rhs )
     }
     else
     {
-        m_negative = !m_negative;
+        const bool newNegative = !m_negative;
         *this = unsignedSubtract( rhs, *this );
+        m_negative = newNegative;
     }
 
     return *this;

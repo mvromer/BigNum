@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 #include "../BigNum/BigNum.h"
+#include "../BigNum/RsaMath.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -154,6 +155,15 @@ namespace BigNumTests
             Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(4) );
             Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
             Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+        }
+
+        TEST_METHOD( TestRsaInverse )
+        {
+            BigNum a( 4 );
+            a = 31;
+
+            BigNum aInv( 4 );
+            compute_rsa_inverse( a, aInv );
         }
 	};
 }

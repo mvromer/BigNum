@@ -20,9 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BigNum.h" />
+    <ClInclude Include="RsaMath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigNum.cpp" />
+    <ClCompile Include="RsaMath.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

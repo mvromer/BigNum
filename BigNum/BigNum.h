@@ -37,16 +37,22 @@ public:
     typedef uint64_t word_t;
 
 public:
+    BigNum();
     BigNum( size_t capacity );
 
     digit_t & operator[]( std::size_t iDigit ) { return m_digits[iDigit]; }
     const digit_t & operator[]( std::size_t iDigit ) const { return m_digits[iDigit]; }
+
+    size_t numberDigits() const { return m_digits.size();  }
 
     void grow( size_t newCapacity );
     void clamp();
     void zero();
 
     bool isZero() const { return m_numDigitsUsed == 0; }
+    bool isEven() const { return isZero() || (m_digits[0] & 1) == 0; }
+    bool isOdd() const { return !isEven(); }
+
     Comparison compareMagnitude( const BigNum & other ) const;
     Comparison compare( const BigNum & other ) const;
 
@@ -120,6 +126,18 @@ private:
     size_t m_numDigitsUsed;
     std::vector<digit_t> m_digits;
 };
+
+constexpr  BigNum::digit_t DigitOne = static_cast<BigNum::digit_t>(1);
+
+// Number of bits in a digit contributing to the value of that digit. If this value is x, then the
+// radix of a BigNum is 2^x .
+constexpr BigNum::digit_t DigitBits = 31;
+
+// Compute a bit mask that will extract all DigitBits number of bits in a single digit.
+constexpr BigNum::digit_t DigitMask = (DigitOne << DigitBits) - DigitOne;
+
+// Number of bits in a single precision digit.
+constexpr BigNum::digit_t DigitBitSize = CHAR_BIT * sizeof( BigNum::digit_t );
 
 BigNum abs( const BigNum & x );
 BigNum negate( const BigNum & x );

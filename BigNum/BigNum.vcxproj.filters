@@ -18,9 +18,15 @@
     <ClInclude Include="BigNum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RsaMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigNum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RsaMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
