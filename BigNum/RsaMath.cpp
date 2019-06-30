@@ -3,15 +3,16 @@
 #include "RsaMath.h"
 
 // Adapted from binary extended GCD algorithm given in section 14.4.3 in Handbook of Applied
-// Cryptography. Designed specifically for computing inverse of the RSA modulus N such that
-// NN' + RR' = 1 given that R > N and that R is a power of two, specifically a power of the
-// BigNum radix. In particular, this will find the inverse N' such that NN' = 1 (mod b) where
-// b is the BigNum radix. Expected to be used when performing Montgomery exponentiation.
+// Cryptography. This is designed specifically for computing a value N' = -N^-1 mod b for an
+// RSA modulus N (i.e., the product of two large primes). Here, b is the BigNum radix, which
+// is a power of two.
 //
-// Under these assumptions, we know N is odd because practical application of RSA enforces it
-// to be a product of two large primes. Our radix b is determined at compile time and is even.
+// The value N' is guaranteed to exist because N and b are coprime. By extension, this means
+// N and R = b^l are also coprime, where l is the number of base-b digits in N. Consequently,
+// the value returned by this function is sufficient for use in Montgomery multiplication and,
+// by extension, Montgomery exponentiation.
 //
-BigNum::digit_t compute_montgomery_exponentiation_inverse( const BigNum & n )
+BigNum::digit_t compute_montgomery_inverse( const BigNum & n )
 {
     // Represent our radix, which is 2^(DigitBits). For purposes of corresponding with variables
     // given in HAC, n and x here refer to x and y in HAC, respectively.
@@ -81,7 +82,10 @@ BigNum::digit_t compute_montgomery_exponentiation_inverse( const BigNum & n )
     if( v.compare( one ) != Comparison::Equal )
         throw std::invalid_argument( "n must be coprime to be" );
 
-    // Make sure computed modulus is in the range [0, b).
+    // Montgomery multiplication requires N' to be -N^-1 mod b. C contains our computed inverse
+    // for N, though it may not be reduced mod b. Negate the inverse and reduce it mod b.
+    C.negate();
+
     const BigNum zero;
     while( C.compare( zero ) != Comparison::GreaterThan )
         C += b;
@@ -115,7 +119,9 @@ BigNum montgomery_multiply( const BigNum & x, const BigNum & y,
 
         // Compute ui = (a0 + xi * y0) * m' (mod b). Perform the mod b operation at each step to
         // avoid overflowing the double precision word.
-        auto ui = static_cast<BigNum::digit_t>((((a0 + (xi * y0) & digitMask) & digitMask) * mInv) & digitMask);
+        auto ui = static_cast<BigNum::digit_t>(
+            (((a0 + (xi * y0) & digitMask) & digitMask) * mInv) & digitMask
+        );
 
         // Compute A = (A + xi * y + ui * m) / b.
         xiy = y * static_cast<BigNum::digit_t>(xi);

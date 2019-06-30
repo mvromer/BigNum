@@ -157,13 +157,13 @@ namespace BigNumTests
             Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
         }
 
-        TEST_METHOD( TestMontgomeryMultiplyInverse )
+        TEST_METHOD( TestMontgomeryInverse )
         {
-            BigNum::digit_t expected = 1039104991;
+            BigNum::digit_t expected = 1108378657;
             BigNum a;
             a = 31;
 
-            BigNum::digit_t aInv = compute_montgomery_exponentiation_inverse( a );
+            BigNum::digit_t aInv = compute_montgomery_inverse( a );
             Assert::IsTrue( expected == aInv );
         }
 
@@ -194,8 +194,14 @@ namespace BigNumTests
             r = 1;
             r.leftDigitShift( m.numberDigits() );
 
-            BigNum::digit_t mInv = compute_montgomery_exponentiation_inverse( m );
-            BigNum prod = montgomery_multiply( x, y, m, mInv, r );
+            BigNum::digit_t mInv = compute_montgomery_inverse( m );
+            BigNum actual = montgomery_multiply( x, y, m, mInv, r );
+
+            // xyR^-1 mod m should be 6 in this case.
+            BigNum expected;
+            expected = 6;
+
+            Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 	};
 }
