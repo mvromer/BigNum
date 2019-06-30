@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <climits>
+#include <stdexcept>
 
 #include "BigNum.h"
 
@@ -18,6 +18,23 @@ BigNum::BigNum( size_t capacity ) :
     m_digits( 0 )
 {
     grow( capacity );
+}
+
+size_t BigNum::numberBits() const
+{
+    if( isZero() )
+        return 0;
+
+    size_t numberBits = (m_numDigitsUsed - 1) * DigitBits;
+    digit_t mostSigDigit = m_digits[m_numDigitsUsed - 1];
+
+    while( mostSigDigit > 0 )
+    {
+        ++numberBits;
+        mostSigDigit >>= 1;
+    }
+
+    return numberBits;
 }
 
 void BigNum::grow( size_t newCapacity )
@@ -44,6 +61,39 @@ void BigNum::zero()
     m_numDigitsUsed = 0;
     m_negative = false;
     std::fill( m_digits.begin(), m_digits.end(), 0 );
+}
+
+Comparison BigNum::compareMagnitude( const BigNum & other ) const
+{
+    if( m_numDigitsUsed > other.m_numDigitsUsed )
+        return Comparison::GreaterThan;
+
+    if( m_numDigitsUsed < other.m_numDigitsUsed )
+        return Comparison::LessThan;
+
+    for( size_t iDigit = 0, riDigit = m_numDigitsUsed - 1;
+        iDigit < m_numDigitsUsed;
+        ++iDigit, --riDigit )
+    {
+        if( m_digits[riDigit] > other.m_digits[riDigit] )
+            return Comparison::GreaterThan;
+
+        if( m_digits[riDigit] < other.m_digits[riDigit] )
+            return Comparison::LessThan;
+    }
+
+    return Comparison::Equal;
+}
+
+Comparison BigNum::compare( const BigNum & other ) const
+{
+    if( m_negative && !other.m_negative )
+        return Comparison::LessThan;
+
+    if( !m_negative && other.m_negative )
+        return Comparison::GreaterThan;
+
+    return m_negative ? other.compareMagnitude( *this ) : compareMagnitude( other );
 }
 
 BigNum & BigNum::abs()
@@ -174,6 +224,21 @@ BigNum & BigNum::rightDigitShift( size_t numDigits )
     return *this;
 }
 
+BigNum & BigNum::mod( const BigNum & modulus )
+{
+    BigNum q;
+    BigNum r;
+    divide( modulus, q, r );
+
+    // Remainder could be negative depending on the signs of our inputs. To reduce mod our modulus,
+    // add back the modulus.
+    if( r.m_negative )
+        r += modulus;
+
+    *this = r;
+    return *this;
+}
+
 BigNum & BigNum::mod2b( size_t b )
 {
     if( b == 0 )
@@ -198,41 +263,6 @@ BigNum & BigNum::mod2b( size_t b )
     clamp();
     return *this;
 }
-
-
-Comparison BigNum::compareMagnitude( const BigNum & other ) const
-{
-    if( m_numDigitsUsed > other.m_numDigitsUsed )
-        return Comparison::GreaterThan;
-
-    if( m_numDigitsUsed < other.m_numDigitsUsed )
-        return Comparison::LessThan;
-
-    for( size_t iDigit = 0, riDigit = m_numDigitsUsed - 1;
-        iDigit < m_numDigitsUsed;
-        ++iDigit, --riDigit )
-    {
-        if( m_digits[riDigit] > other.m_digits[riDigit] )
-            return Comparison::GreaterThan;
-
-        if( m_digits[riDigit] < other.m_digits[riDigit] )
-            return Comparison::LessThan;
-    }
-
-    return Comparison::Equal;
-}
-
-Comparison BigNum::compare( const BigNum & other ) const
-{
-    if( m_negative && !other.m_negative )
-        return Comparison::LessThan;
-
-    if( !m_negative && other.m_negative )
-        return Comparison::GreaterThan;
-
-    return m_negative ? other.compareMagnitude( *this ) : compareMagnitude( other );
-}
-
 
 BigNum & BigNum::operator=( const BigNum & other )
 {
@@ -303,6 +333,7 @@ BigNum & BigNum::operator-=( const BigNum & rhs )
 
 BigNum & BigNum::operator*=( const BigNum & rhs )
 {
+    // This only supports the baseline multiplier from BigNum Math and none of the fancier methods.
     m_negative = (m_negative == rhs.m_negative);
     baselineMultiply( rhs, m_numDigitsUsed + rhs.m_numDigitsUsed + 1 );
     return *this;
@@ -331,6 +362,15 @@ BigNum & BigNum::operator*=( digit_t rhs )
     m_digits[oldNumDigitsUsed] = carry;
 
     clamp();
+    return *this;
+}
+
+BigNum & BigNum::operator/=( const BigNum & rhs )
+{
+    BigNum q;
+    BigNum r;
+    divide( rhs, q, r );
+    *this = q;
     return *this;
 }
 
@@ -570,6 +610,132 @@ BigNum & BigNum::baselineMultiply( const BigNum & rhs, size_t numDigits )
     return *this;
 }
 
+// Based on the BigNum Math's enhanced version of HAC's Algorithm 14.20.
+void BigNum::divide( const BigNum & rhs, BigNum & q, BigNum & r )
+{
+    if( rhs.isZero() )
+        throw std::invalid_argument( "Cannot divide by zero." );
+
+    if( compareMagnitude( rhs ) == Comparison::LessThan )
+    {
+        r = *this;
+        q.zero();
+        return;
+    }
+
+    // Setup the quotient.
+    q.grow( m_numDigitsUsed + 2 );
+    q.m_numDigitsUsed = m_numDigitsUsed + 2;
+
+    BigNum x( *this );
+    x.abs();
+
+    BigNum y( rhs );
+    y.abs();
+
+    const bool negative = (m_negative != rhs.m_negative);
+
+    // Normalize inputs. Compute how much we need to shift the divisor by to have its most
+    // significant bit in the DigitBits position of its leading digit. Use this amount to
+    // shift both our divisor and dividend.
+    size_t normShift = y.numberBits() & DigitMask;
+    if( normShift < (DigitBits - 1) )
+    {
+        normShift = DigitBits - 1 - normShift;
+        x <<= normShift;
+        y <<= normShift;
+    }
+    else
+    {
+        normShift = 0;
+    }
+
+    // Find the leading digit in the quotient.
+    size_t n = x.m_numDigitsUsed - 1;
+    size_t t = y.m_numDigitsUsed - 1;
+
+    y.leftDigitShift( n - t );
+    while( x.compare( y ) != Comparison::LessThan )
+    {
+        q.m_digits[n - t] += 1;
+        x -= y;
+    }
+    y.rightDigitShift( n - t );
+
+    // Compute remaining digits of the quotient.
+    BigNum temp1;
+    BigNum temp2;
+
+    for( size_t iDigit = n; iDigit > t; --iDigit )
+    {
+        if( iDigit > x.m_numDigitsUsed )
+            continue;
+
+        // Estimate the current quotient digit.
+        auto & currentQuotientDigit = q.m_digits[iDigit - t - 1];
+
+        if( x.m_digits[iDigit] == y.m_digits[iDigit] )
+        {
+            currentQuotientDigit = DigitRadix - 1;
+        }
+        else
+        {
+            constexpr auto digitMask = static_cast<word_t>(DigitMask);
+
+            word_t r = static_cast<word_t>(x.m_digits[iDigit]) <<
+                static_cast<word_t>(DigitBits);
+
+            r |= static_cast<word_t>(x.m_digits[iDigit - 1]);
+            r /= static_cast<word_t>(y.m_digits[t]);
+
+            if( r > digitMask )
+                r = digitMask;
+
+            currentQuotientDigit = static_cast<digit_t>(r & digitMask);
+        }
+
+        currentQuotientDigit = (currentQuotientDigit + 1) & DigitMask;
+
+        // Start to fix the quotient digit estimate.
+        do
+        {
+            currentQuotientDigit = (currentQuotientDigit - 1) & DigitMask;
+
+            temp1.zero();
+            temp1.m_digits[0] = (t < 1) ? 0 : y.m_digits[t - 1];
+            temp1.m_digits[1] = y.m_digits[t];
+            temp1.m_numDigitsUsed = 2;
+            temp1 *= currentQuotientDigit;
+
+            temp2.m_digits[0] = (iDigit < 2) ? 0 : x.m_digits[iDigit - 2];
+            temp2.m_digits[1] = (iDigit < 1) ? 0 : x.m_digits[iDigit - 1];
+            temp2.m_digits[2] = x.m_digits[iDigit];
+            temp2.m_numDigitsUsed = 3;
+        } while( temp1.compareMagnitude( temp2 ) == Comparison::GreaterThan );
+
+        temp1 = y * currentQuotientDigit;
+        temp1.leftDigitShift( iDigit - t - 1 );
+
+        x -= temp1;
+        if( x.m_negative )
+        {
+            temp1 = y;
+            temp1.leftDigitShift( iDigit - t - 1 );
+            x += temp1;
+
+            constexpr digit_t one = 1;
+            currentQuotientDigit = (currentQuotientDigit - one) & DigitMask;
+        }
+    }
+
+    // Quotient is computed in q, and remainder is in x. Need to set signs, clamp digits, and
+    // denormalize results, and set outputs.
+    q.clamp();
+    q.m_negative = negative;
+
+    x.m_negative = (x.m_numDigitsUsed == 0) ? false : m_negative;
+    r = x >> normShift;
+}
 
 BigNum abs( const BigNum & x )
 {

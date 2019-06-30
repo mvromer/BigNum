@@ -1,6 +1,7 @@
 #ifndef __BIG_NUM_H__
 #define __BIG_NUM_H__
 
+#include <climits>
 #include <vector>
 
 enum class Comparison
@@ -38,13 +39,15 @@ public:
 
 public:
     BigNum();
-    BigNum( size_t capacity );
+    explicit BigNum( size_t capacity );
 
     digit_t & operator[]( std::size_t iDigit ) { return m_digits[iDigit]; }
     const digit_t & operator[]( std::size_t iDigit ) const { return m_digits[iDigit]; }
 
     size_t numberDigits() const { return m_numDigitsUsed;  }
     digit_t getDigit( size_t iDigit ) const { return m_digits[iDigit]; }
+
+    size_t numberBits() const;
 
     void grow( size_t newCapacity );
     void clamp();
@@ -65,6 +68,7 @@ public:
     BigNum & leftDigitShift( size_t numDigits );
     BigNum & rightDigitShift( size_t numDigits );
 
+    BigNum & mod( const BigNum & modulus );
     BigNum & mod2b( size_t b );
 
     BigNum & operator=( const BigNum & other );
@@ -95,6 +99,13 @@ public:
     friend BigNum operator*( BigNum lhs, digit_t rhs )
     {
         lhs *= rhs;
+        return lhs;
+    }
+
+    BigNum & operator/=( const BigNum & rhs );
+    friend BigNum operator/( BigNum lhs, const BigNum & rhs )
+    {
+        lhs /= rhs;
         return lhs;
     }
 
@@ -129,6 +140,8 @@ private:
 
     BigNum & baselineMultiply( const BigNum & rhs, size_t numDigits );
 
+    void divide( const BigNum & rhs, BigNum & q, BigNum & r );
+
 private:
     bool m_negative;
     size_t m_numDigitsUsed;
@@ -141,8 +154,11 @@ constexpr  BigNum::digit_t DigitOne = static_cast<BigNum::digit_t>(1);
 // radix of a BigNum is 2^x .
 constexpr BigNum::digit_t DigitBits = 31;
 
+// Radix for a digit. This is 2^DigitBits.
+constexpr BigNum::digit_t DigitRadix = DigitOne << DigitBits;
+
 // Compute a bit mask that will extract all DigitBits number of bits in a single digit.
-constexpr BigNum::digit_t DigitMask = (DigitOne << DigitBits) - DigitOne;
+constexpr BigNum::digit_t DigitMask = DigitRadix - DigitOne;
 
 // Number of bits in a single precision digit.
 constexpr BigNum::digit_t DigitBitSize = CHAR_BIT * sizeof( BigNum::digit_t );

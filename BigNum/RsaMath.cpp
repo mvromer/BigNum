@@ -83,23 +83,14 @@ BigNum::digit_t compute_montgomery_inverse( const BigNum & n )
         throw std::invalid_argument( "n must be coprime to be" );
 
     // Montgomery multiplication requires N' to be -N^-1 mod b. C contains our computed inverse
-    // for N, though it may not be reduced mod b. Negate the inverse and reduce it mod b.
-    C.negate();
-
-    const BigNum zero;
-    while( C.compare( zero ) != Comparison::GreaterThan )
-        C += b;
-
-    while( C.compare( b ) != Comparison::LessThan )
-        C -= b;
-
-    // Since we reduced mod b, the final answer is in the least significant digit of C.
-    return C.getDigit( 0 );
+    // for N, though it may not be reduced mod b. Negate the inverse and reduce it mod b. Since
+    // the result is reduced mod b, the final answer is in the least significant digit of C.
+    return C.negate().mod( b ).getDigit( 0 );
 }
 
 // Based on Algorithm 14.36 in Handbook of Applied Cryptography.
 BigNum montgomery_multiply( const BigNum & x, const BigNum & y,
-    const BigNum & m, BigNum::digit_t mInv, const BigNum & r )
+    const BigNum & m, BigNum::digit_t mInv )
 {
     const size_t numberDigits = m.numberDigits();
     BigNum a( m.numberDigits() );

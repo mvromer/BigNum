@@ -190,17 +190,52 @@ namespace BigNumTests
             BigNum m;
             m = 17;
 
-            BigNum r;
-            r = 1;
-            r.leftDigitShift( m.numberDigits() );
-
             BigNum::digit_t mInv = compute_montgomery_inverse( m );
-            BigNum actual = montgomery_multiply( x, y, m, mInv, r );
+            BigNum actual = montgomery_multiply( x, y, m, mInv );
 
-            // xyR^-1 mod m should be 6 in this case.
+            // xyR^-1 mod m should be 6 in this case. R = b^l, where l is the number of base-b
+            // digits in m. In this case, R = b, thus R^-1 mod m = 2.
             BigNum expected;
             expected = 6;
 
+            Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
+        }
+
+        TEST_METHOD( TestMod )
+        {
+            BigNum m;
+            m = 17;
+
+            BigNum actual;
+            actual = 1;
+            actual.leftDigitShift( 1 ).mod( m );
+
+            BigNum expected;
+            expected = 9;
+
+            Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
+        }
+
+        TEST_METHOD( TestNumberBits )
+        {
+            BigNum x;
+            x = 1;
+            x.leftDigitShift( 1 );
+
+            const size_t expected = 32;
+            Assert::AreEqual( expected, x.numberBits() );
+        }
+
+        TEST_METHOD( TestDivide )
+        {
+            BigNum x;
+            BigNum y;
+            x = 36;
+            y = 9;
+
+            BigNum actual = x / y;
+            BigNum expected;
+            expected = 4;
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 	};
