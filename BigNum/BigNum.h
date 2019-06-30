@@ -35,6 +35,9 @@ public:
 public:
     BigNum();
     explicit BigNum( size_t capacity );
+    explicit BigNum( const std::vector<uint8_t> & digitData );
+    BigNum( const uint8_t * digitData, size_t numberBytes,
+        bool swizzle = false, size_t swizzleSize = 1 );
 
     digit_t & operator[]( std::size_t iDigit ) { return m_digits[iDigit]; }
     const digit_t & operator[]( std::size_t iDigit ) const { return m_digits[iDigit]; }
@@ -50,12 +53,14 @@ public:
     void clamp();
     void zero();
 
-    void loadBytes( const uint8_t * bytes, size_t count, bool preZero = true );
+    void loadBytes( const uint8_t * bytes, size_t count, bool preZero = true,
+        bool swizzle = false, size_t swizzleSize = 1 );
     void storeBytes( uint8_t * bytes, size_t count );
 
     bool isZero() const { return m_numDigitsUsed == 0; }
     bool isEven() const { return isZero() || (m_digits[0] & 1) == 0; }
     bool isOdd() const { return !isEven(); }
+    bool isNegative() const{ return m_negative; }
 
     Comparison compareMagnitude( const BigNum & other ) const;
     Comparison compare( const BigNum & other ) const;

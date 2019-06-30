@@ -55,6 +55,17 @@ BigNum::BigNum( size_t capacity ) :
     grow( capacity );
 }
 
+BigNum::BigNum( const std::vector<uint8_t> & digitData ) :
+    BigNum( digitData.data(), digitData.size() ) { }
+
+BigNum::BigNum( const uint8_t * digitData, size_t numberBytes,
+    bool swizzle, size_t swizzleSize ) :
+    BigNum()
+{
+    constexpr bool preZero = true;
+    loadBytes( digitData, numberBytes, preZero, swizzle, swizzleSize );
+}
+
 size_t BigNum::numberBits() const
 {
     if( isZero() )
@@ -98,19 +109,26 @@ void BigNum::zero()
     std::fill( m_digits.begin(), m_digits.end(), 0 );
 }
 
-void BigNum::loadBytes( const uint8_t * bytes, size_t count, bool preZero )
+void BigNum::loadBytes( const uint8_t * bytes, size_t count, bool preZero,
+    bool swizzle, size_t swizzleSize )
 {
     if( bytes == nullptr )
         return;
 
+    if( count % swizzleSize != 0 )
+        throw std::invalid_argument( "Swizzle size must be multiple of load size." );
+
     if( preZero )
         zero();
 
-    for( size_t iByte = 0; iByte < count; ++iByte )
+    for( size_t iByte = 0; iByte <= (count - swizzleSize); iByte += swizzleSize )
     {
-        *this <<= 8;
-        m_digits[0] |= bytes[iByte];
-        ++m_numDigitsUsed;
+        for( size_t swizzleOffset = 0; swizzleOffset < swizzleSize; ++swizzleOffset )
+        {
+            *this <<= 8;
+            m_digits[0] |= bytes[iByte + swizzleSize - 1 - swizzleOffset];
+            ++m_numDigitsUsed;
+        }
     }
 
     clamp();

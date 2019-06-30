@@ -11,239 +11,198 @@ namespace BigNumTests
 	{
 	public:
 		
-        TEST_METHOD( TestAssignment )
+        TEST_METHOD( TestVectorConstruction )
 		{
-            BigNum a( 4 );
-            a = 1;
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(1) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            BigNum a( std::vector<uint8_t>{ 4 } );
+            Assert::IsTrue( a.numberDigits() == 1 );
+            Assert::IsTrue( a.getDigit( 0 ) == 4 );
+            Assert::IsFalse( a.isNegative() );
 		}
+
+        TEST_METHOD( TestScalarAssignment )
+        {
+            BigNum a;
+            a = 4;
+            Assert::IsTrue( a.numberDigits() == 1 );
+            Assert::IsTrue( a.getDigit( 0 ) == 4 );
+            Assert::IsFalse( a.isNegative() );
+        }
 
         TEST_METHOD( TestMultiplyByTwo )
 		{
-            BigNum a( 4 );
-            a = 4;
+            BigNum a( std::vector<uint8_t>{ 4 } );
             a.multiplyByTwo();
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(8) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 1 );
+            Assert::IsTrue( a.getDigit( 0 ) == 8 );
+            Assert::IsFalse( a.isNegative() );
 		}
 
         TEST_METHOD( TestDivideByTwo )
         {
-            BigNum a( 4 );
+            BigNum a( std::vector<uint8_t>{ 8 } );
             a = 8;
             a.divideByTwo();
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(4) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 1 );
+            Assert::IsTrue( a.getDigit( 0 ) == 4 );
+            Assert::IsFalse( a.isNegative() );
         }
 
         TEST_METHOD( TestLeftDigitShift )
         {
-            BigNum a( 4 );
-            a = 8;
+            BigNum a( std::vector<uint8_t>{ 8 } );
             a.leftDigitShift( 1 );
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(8) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 2 );
+            Assert::IsTrue( a.getDigit( 0 ) == 0 );
+            Assert::IsTrue( a.getDigit( 1 ) == 8 );
+            Assert::IsFalse( a.isNegative() );
         }
 
         TEST_METHOD( TestRightDigitShift )
         {
-            BigNum a( 4 );
-            a = 8;
+            BigNum a( std::vector<uint8_t>{ 8 } );
             a.leftDigitShift( 1 );
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(8) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 2 );
+            Assert::IsTrue( a.getDigit( 0 ) == 0 );
+            Assert::IsTrue( a.getDigit( 1 ) == 8 );
+            Assert::IsFalse( a.isNegative() );
 
             a.rightDigitShift( 1 );
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(8) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 1 );
+            Assert::IsTrue( a.getDigit( 0 ) == 8 );
+            Assert::IsFalse( a.isNegative() );
         }
 
         TEST_METHOD( TestLeftShift )
         {
-            BigNum a( 4 );
-            a = 1;
+            BigNum a( std::vector<uint8_t>{ 1 } );
             a <<= 34;
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(8) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 2 );
+            Assert::IsTrue( a.getDigit( 0 ) == 0 );
+            Assert::IsTrue( a.getDigit( 1 ) == 8 );
+            Assert::IsFalse( a.isNegative() );
         }
 
         TEST_METHOD( TestRightShift )
         {
-            BigNum a( 4 );
-            a = 1;
+            BigNum a( std::vector<uint8_t>{ 1 } );
             a <<= 34;
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(8) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 2 );
+            Assert::IsTrue( a.getDigit( 0 ) == 0 );
+            Assert::IsTrue( a.getDigit( 1 ) == 8 );
+            Assert::IsFalse( a.isNegative() );
 
             a >>= 32;
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(4) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 1 );
+            Assert::IsTrue( a.getDigit( 0 ) == 4 );
+            Assert::IsFalse( a.isNegative() );
         }
 
         TEST_METHOD( TestMod2B )
         {
-            BigNum a( 4 );
-            a = 1;
-
-            BigNum b( 4 );
-            b = 1;
+            const BigNum a( std::vector<uint8_t>{ 1 } );
+            BigNum b( std::vector<uint8_t>{ 1 } );
             b <<= 31;
 
-            BigNum c( 4 );
-            c = a + b;
-            Assert::AreEqual( c[0], static_cast<BigNum::digit_t>(1) );
-            Assert::AreEqual( c[1], static_cast<BigNum::digit_t>(1) );
-            Assert::AreEqual( c[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( c[3], static_cast<BigNum::digit_t>(0) );
+            BigNum c = a + b;
+            Assert::IsTrue( c.numberDigits() == 2 );
+            Assert::IsTrue( c.getDigit( 0 ) == 1 );
+            Assert::IsTrue( c.getDigit( 1 ) == 1 );
+            Assert::IsFalse( c.isNegative() );
 
             c.mod2b( 31 );
-            Assert::AreEqual( c[0], static_cast<BigNum::digit_t>(1) );
-            Assert::AreEqual( c[1], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( c[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( c[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( c.numberDigits() == 1 );
+            Assert::IsTrue( c.getDigit( 0 ) == 1 );
+            Assert::IsFalse( c.isNegative() );
         }
 
         TEST_METHOD( TestSimpleMultiply )
         {
-            BigNum a( 4 );
-            a = 2;
-
-            BigNum b( 4 );
-            b = 2;
+            BigNum a( std::vector<uint8_t>{ 2 } );
+            const BigNum b( std::vector<uint8_t>{ 2 } );
 
             a *= b;
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(4) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 1 );
+            Assert::IsTrue( a.getDigit( 0 ) == 4 );
+            Assert::IsFalse( a.isNegative() );
         }
 
         TEST_METHOD( TestMultiDigitMultiply )
         {
-            BigNum a( 4 );
-            a = 2;
-
-            BigNum b( 4 );
-            b = 2;
+            BigNum a( std::vector<uint8_t>{ 2 } );
+            BigNum b( std::vector<uint8_t>{ 2 } );
             b <<= 31;
-            Assert::AreEqual( b[0], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( b[1], static_cast<BigNum::digit_t>(2) );
-            Assert::AreEqual( b[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( b[3], static_cast<BigNum::digit_t>(0) );
+
+            Assert::IsTrue( b.numberDigits() == 2 );
+            Assert::IsTrue( b.getDigit( 0 ) == 0 );
+            Assert::IsTrue( b.getDigit( 1 ) == 2 );
+            Assert::IsFalse( b.isNegative() );
 
             a *= b;
-            Assert::AreEqual( a[0], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[1], static_cast<BigNum::digit_t>(4) );
-            Assert::AreEqual( a[2], static_cast<BigNum::digit_t>(0) );
-            Assert::AreEqual( a[3], static_cast<BigNum::digit_t>(0) );
+            Assert::IsTrue( a.numberDigits() == 2 );
+            Assert::IsTrue( a.getDigit( 0 ) == 0 );
+            Assert::IsTrue( a.getDigit( 1 ) == 4 );
+            Assert::IsFalse( a.isNegative() );
         }
 
         TEST_METHOD( TestMontgomeryInverse )
         {
-            BigNum::digit_t expected = 1108378657;
-            BigNum a;
-            a = 31;
-
-            BigNum::digit_t aInv = compute_montgomery_inverse( a );
-            Assert::IsTrue( expected == aInv );
+            const BigNum::digit_t expected = 1108378657;
+            const BigNum a( std::vector<uint8_t>{ 31 } );
+            const BigNum::digit_t actual = compute_montgomery_inverse( a );
+            Assert::AreEqual( expected, actual );
         }
 
         TEST_METHOD( TestSingleDigitMultiply )
         {
-            BigNum expected;
-            expected = 16;
-
-            BigNum a;
-            a = 2;
-
-            BigNum actual = a * 8;
+            const BigNum expected( std::vector<uint8_t>{ 16 } );
+            const BigNum a( std::vector<uint8_t>{ 2 } );
+            const BigNum actual = a * 8;
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 
         TEST_METHOD( TestMontgomeryMultiply )
         {
-            BigNum x;
-            x = 7;
-
-            BigNum y;
-            y = 15;
-
-            BigNum m;
-            m = 17;
-
-            BigNum::digit_t mInv = compute_montgomery_inverse( m );
-            BigNum actual = montgomery_multiply( x, y, m, mInv );
+            const BigNum x( std::vector<uint8_t>{ 7 } );
+            const BigNum y( std::vector<uint8_t>{ 15 } );
+            const BigNum m( std::vector<uint8_t>{ 17 } );
+            const BigNum::digit_t mInv = compute_montgomery_inverse( m );
+            const BigNum actual = montgomery_multiply( x, y, m, mInv );
 
             // xyR^-1 mod m should be 6 in this case. R = b^l, where l is the number of base-b
             // digits in m. In this case, R = b, thus R^-1 mod m = 2.
-            BigNum expected;
-            expected = 6;
-
+            const BigNum expected( std::vector<uint8_t> { 6 } );
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 
         TEST_METHOD( TestMod )
         {
-            BigNum m;
-            m = 17;
-
-            BigNum actual;
-            actual = 1;
+            const BigNum m( std::vector<uint8_t>{ 17 } );
+            const BigNum expected( std::vector<uint8_t>{ 9 } );
+            BigNum actual( std::vector<uint8_t>{ 1 } );
             actual.leftDigitShift( 1 ).mod( m );
-
-            BigNum expected;
-            expected = 9;
-
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 
         TEST_METHOD( TestNumberBits )
         {
-            BigNum x;
-            x = 1;
+            BigNum x( std::vector<uint8_t>{ 1 } );
             x.leftDigitShift( 1 );
-
             const size_t expected = 32;
             Assert::AreEqual( expected, x.numberBits() );
         }
 
         TEST_METHOD( TestDivide )
         {
-            BigNum x;
-            BigNum y;
-            x = 36;
-            y = 9;
-
-            BigNum actual = x / y;
-            BigNum expected;
-            expected = 4;
+            const BigNum x( std::vector<uint8_t>{ 36 } );
+            const BigNum y( std::vector<uint8_t>{ 9 } );
+            const BigNum actual = x / y;
+            const BigNum expected( std::vector<uint8_t>{ 4 } );
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 
         TEST_METHOD( TestBiterator )
         {
-            BigNum x;
-            x = 36;
-
+            const BigNum x( std::vector<uint8_t>{ 36 } );
             auto bi = x.createBiterator();
             Assert::AreNotEqual( bi.nextBit(), 0u );
             Assert::AreEqual( bi.nextBit(), 0u );
@@ -256,54 +215,65 @@ namespace BigNumTests
 
         TEST_METHOD( TestModularExponentiation )
         {
-            BigNum b;
-            b = 4;
+            constexpr bool swizzle = true;
 
-            BigNum e;
-            e = 13;
+            BigNum::digit_t expectedValue = 445;
+            const BigNum expected( reinterpret_cast<uint8_t *>(&expectedValue),
+                sizeof( expectedValue ),
+                swizzle,
+                sizeof( BigNum::digit_t ) );
 
-            BigNum n;
-            n = 497;
+            BigNum::digit_t nValue = 497;
+            const BigNum n( reinterpret_cast<uint8_t *>(&nValue),
+                sizeof( nValue ),
+                swizzle,
+                sizeof( BigNum::digit_t ) );
 
-            BigNum r;
-            r = 1;
+            const BigNum b( std::vector<uint8_t>{ 4 } );
+            const BigNum e( std::vector<uint8_t>{ 13 } );
+            BigNum r( std::vector<uint8_t>{ 1 } );
             r.leftDigitShift( n.numberDigits() ).mod( n );
 
-            BigNum r2( r * r );
+            BigNum r2 = r * r;
             r2.mod( n );
 
-            BigNum::digit_t mInv = compute_montgomery_inverse( n );
-
-            BigNum actual( montgomery_exponentiation( b, e, n, mInv, r, r2 ) );
+            const BigNum::digit_t mInv = compute_montgomery_inverse( n );
+            const BigNum actual( montgomery_exponentiation( b, e, n, mInv, r, r2 ) );
+            Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 
         TEST_METHOD( TestRsa )
         {
-            BigNum m;
-            BigNum m2;
-            BigNum c;
-            BigNum e;
-            BigNum d;
-            BigNum n;
-            BigNum r;
+            constexpr bool swizzle = true;
 
-            m = 65;
-            e = 17;
-            d = 413;
-            n = 3233;
-            r = 1;
+            const BigNum m( std::vector<uint8_t>{ 65 } );
+            const BigNum e( std::vector<uint8_t>{ 17 } );
+
+            BigNum::digit_t dValue = 413;
+            const BigNum d( reinterpret_cast<uint8_t *>(&dValue),
+                sizeof( dValue ),
+                swizzle,
+                sizeof( BigNum::digit_t ) );
+
+            BigNum::digit_t nValue = 3233;
+            const BigNum n( reinterpret_cast<uint8_t *>(&nValue),
+                sizeof( nValue ),
+                swizzle,
+                sizeof( BigNum::digit_t ) );
+
+            BigNum r( std::vector<uint8_t>{ 1 } );
             r.leftDigitShift( n.numberDigits() ).mod( n );
 
             BigNum r2( r * r );
             r2.mod( n );
 
-            BigNum::digit_t nInv = compute_montgomery_inverse( n );
+            const BigNum::digit_t nInv = compute_montgomery_inverse( n );
 
             // Encrypt.
-            c = montgomery_exponentiation( m, e, n, nInv, r, r2 );
+            BigNum c = montgomery_exponentiation( m, e, n, nInv, r, r2 );
 
             // Decrypt.
-            m2 = montgomery_exponentiation( c, d, n, nInv, r, r2 );
+            BigNum m2 = montgomery_exponentiation( c, d, n, nInv, r, r2 );
 
             Assert::IsTrue( m.compare( m2 ) == Comparison::Equal );
         }
