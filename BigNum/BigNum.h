@@ -39,9 +39,6 @@ public:
     BigNum( const uint8_t * digitData, size_t numberBytes,
         bool swizzle = false, size_t swizzleSize = 1 );
 
-    digit_t & operator[]( std::size_t iDigit ) { return m_digits[iDigit]; }
-    const digit_t & operator[]( std::size_t iDigit ) const { return m_digits[iDigit]; }
-
     size_t numberDigits() const { return m_numDigitsUsed;  }
     digit_t getDigit( size_t iDigit ) const { return m_digits[iDigit]; }
 
