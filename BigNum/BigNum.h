@@ -43,7 +43,7 @@ public:
     digit_t & operator[]( std::size_t iDigit ) { return m_digits[iDigit]; }
     const digit_t & operator[]( std::size_t iDigit ) const { return m_digits[iDigit]; }
 
-    size_t numberDigits() const { return m_digits.size();  }
+    size_t numberDigits() const { return m_numDigitsUsed;  }
     digit_t getDigit( size_t iDigit ) const { return m_digits[iDigit]; }
 
     void grow( size_t newCapacity );
