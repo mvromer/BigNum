@@ -12,25 +12,6 @@ enum class Comparison
 };
 
 // Based on multi-precision algorithms described in the book BigNum Math by Tom St. Denis.
-//
-// Implementation notes:
-//   * m_negative corresponds to sign field in mp_int
-//   * dp field in mp_int represented as std::vector<digit_t>
-//   * vector's size corresponds to alloc field in mp_int
-//   * m_numDigitsUsed corresponds to used field in mp_int
-//   * mp_init_size performed via user-defined constructor
-//   * mp_init_copy performed via default copy constructor
-//   * mp_copy performed via overloaded copy-assignment operator
-//   * mp_abs is implemented in two different forms:
-//     * Calling the abs member function on a BigNum applies the absolute value function to itself
-//     * Calling the abs free function on a BigNum creates a copy of the number, applies the
-//       absolute value function to the copy, and returns the updated copy
-//   * mp_neg is implemented similar to mp_abs:
-//     * Calling the negate member function on a BigNum negates the number itself
-//     * Calling the negate free function on a BigNum creates a copy of the number, negates it, and
-//       returns the updated copy
-//   * mp_set performed via overloaded assignment operator that takes a digit_t parameter.
-//
 class BigNum
 {
 public:
