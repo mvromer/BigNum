@@ -83,6 +83,12 @@ size_t BigNum::numberBits() const
     return numberBits;
 }
 
+size_t BigNum::numberBytes() const
+{
+    size_t bits = numberBits();
+    return (bits / 8) + (bits % 8 == 0 ? 0 : 1);
+}
+
 void BigNum::grow( size_t newCapacity )
 {
     if( m_digits.capacity() >= newCapacity )

@@ -43,6 +43,7 @@ public:
     digit_t getDigit( size_t iDigit ) const { return m_digits[iDigit]; }
 
     size_t numberBits() const;
+    size_t numberBytes() const;
 
     biterator createBiterator() const { return biterator( *this ); }
 

@@ -341,5 +341,20 @@ namespace BigNumTests
 
             Assert::AreEqual( inputValue, outputValue );
         }
+
+        TEST_METHOD( TestNumberBytes )
+        {
+            const BigNum a( std::vector<uint8_t>{ 7 } );
+            Assert::AreEqual( 3u, a.numberBits() );
+            Assert::AreEqual( 1u, a.numberBytes() );
+
+            const BigNum b( std::vector<uint8_t>{ 255 } );
+            Assert::AreEqual( 8u, b.numberBits() );
+            Assert::AreEqual( 1u, b.numberBytes() );
+
+            const BigNum c( std::vector<uint8_t>{ 1, 3 } );
+            Assert::AreEqual( 9u, c.numberBits() );
+            Assert::AreEqual( 2u, c.numberBytes() );
+        }
 	};
 }
