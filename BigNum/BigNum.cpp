@@ -535,8 +535,8 @@ BigNum & BigNum::operator>>=( size_t numBits )
             iDigit < m_numDigitsUsed;
             ++iDigit, --riDigit )
         {
-            const digit_t nextCarry = m_digits[iDigit] & mask;
-            m_digits[iDigit] = (m_digits[iDigit] >> numBits) | (carry << carryShift);
+            const digit_t nextCarry = m_digits[riDigit] & mask;
+            m_digits[riDigit] = (m_digits[riDigit] >> numBits) | (carry << carryShift);
             carry = nextCarry;
         }
     }
