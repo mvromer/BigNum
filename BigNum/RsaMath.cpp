@@ -15,7 +15,7 @@
 BigNum::digit_t compute_montgomery_inverse( const BigNum & n )
 {
     // Represent our radix, which is 2^(DigitBits). For purposes of corresponding with variables
-    // given in HAC, n and x here refer to x and y in HAC, respectively.
+    // given in HAC, n and b here refer to x and y in HAC, respectively.
     BigNum b;
     b = 1;
     b <<= DigitBits;
