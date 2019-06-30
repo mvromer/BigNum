@@ -356,5 +356,41 @@ namespace BigNumTests
             Assert::AreEqual( 9u, c.numberBits() );
             Assert::AreEqual( 2u, c.numberBytes() );
         }
+
+        TEST_METHOD( TestRoundTripRsaEncrypt )
+        {
+            constexpr bool swizzle = true;
+
+            const char plaintext[] = "Hello !";
+            const uint64_t modulusValue[] = { 0xe037d35a8b160eb7U,  0xf11919bfef440917U };
+            const uint64_t publicExpValue = 65337;
+            const uint64_t privateExpValue[] = { 0x00cab10ccaa4437b67U,  0x11c977a277fe00a1U };
+
+            const BigNum modulus( reinterpret_cast<const uint8_t *>(&modulusValue),
+                sizeof( modulusValue ),
+                swizzle,
+                sizeof( uint64_t ) );
+
+            const BigNum publicExp( reinterpret_cast<const uint8_t *>(&publicExpValue),
+                sizeof( publicExpValue ),
+                swizzle,
+                sizeof( uint64_t ) );
+
+            const BigNum privateExp( reinterpret_cast<const uint8_t *>(&privateExpValue),
+                sizeof( privateExpValue ),
+                swizzle,
+                sizeof( uint64_t ) );
+
+            BigNum r( std::vector<uint8_t>{ 1 } );
+            r.leftDigitShift( modulus.numberDigits() ).mod( modulus );
+
+            const BigNum r2 = (r * r).mod( modulus );
+            const BigNum::digit_t nInv = compute_montgomery_inverse( modulus );
+
+            uint64_t cipher[2];
+            rsaEncrypt( reinterpret_cast<const uint8_t *>(plaintext), sizeof( plaintext ),
+                reinterpret_cast<uint8_t *>(&cipher), sizeof( cipher ),
+                modulus, publicExp, nInv, r, r2 );
+        }
 	};
 }

@@ -148,3 +148,40 @@ BigNum montgomery_exponentiation( const BigNum & x, const BigNum & e,
 
     return montgomery_multiply( a, one, m, mInv );
 }
+
+void rsaEncrypt( const uint8_t * input, size_t inputLength, uint8_t * output, size_t outputLength,
+    const BigNum & n, const BigNum & e, BigNum::digit_t nInv,
+    const BigNum & r, const BigNum & r2 )
+{
+    const size_t rsaBitLength = n.numberBits();
+    const size_t bytesPerInputBlock = (rsaBitLength - 1) / 8;
+    const size_t bytesPerOutputBlock = n.numberBytes();
+    const size_t numInputBlocks = (inputLength / bytesPerInputBlock) + (inputLength % bytesPerInputBlock == 0 ? 0 : 1);
+    const size_t minOutputLength = numInputBlocks * bytesPerOutputBlock;
+
+    if( outputLength < minOutputLength )
+        throw std::invalid_argument( "Output buffer not large enough to store all encrypted blocks." );
+
+    BigNum inputBlock;
+    BigNum outputBlock;
+
+    size_t bytesRead = 0;
+    size_t bytesWritten = 0;
+
+    for( bytesRead = 0, bytesWritten = 0;
+        (bytesRead + bytesPerInputBlock) <= inputLength;
+        bytesRead += bytesPerInputBlock, bytesWritten += bytesPerOutputBlock )
+    {
+        inputBlock.loadBytes( input + bytesRead, bytesPerInputBlock );
+        outputBlock = montgomery_exponentiation( inputBlock, e, n, nInv, r, r2 );
+        outputBlock.storeBytes( output + bytesWritten, bytesPerOutputBlock );
+    }
+
+    // Handle input blocks that aren't a multiple of the block size.
+    if( bytesRead != inputLength )
+    {
+        inputBlock.loadBytes( input + bytesRead, inputLength - bytesRead );
+        outputBlock = montgomery_exponentiation( inputBlock, e, n, nInv, r, r2 );
+        outputBlock.storeBytes( output + bytesWritten, bytesPerOutputBlock );
+    }
+}
