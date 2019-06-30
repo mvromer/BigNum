@@ -307,5 +307,18 @@ namespace BigNumTests
 
             Assert::IsTrue( m.compare( m2 ) == Comparison::Equal );
         }
+
+        TEST_METHOD( TestLoadBytes )
+        {
+            BigNum a;
+            std::vector<uint8_t> bytes{ 8, 0, 0, 0 };
+            a.loadBytes( bytes.data(), bytes.size() );
+
+            BigNum b;
+            b = 1;
+            b <<= 27;
+
+            Assert::IsTrue( a.compare( b ) == Comparison::Equal );
+        }
 	};
 }

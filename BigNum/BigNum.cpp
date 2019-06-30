@@ -98,6 +98,23 @@ void BigNum::zero()
     std::fill( m_digits.begin(), m_digits.end(), 0 );
 }
 
+void BigNum::loadBytes( uint8_t * bytes, size_t loadCount )
+{
+    if( bytes == nullptr )
+        return;
+
+    zero();
+
+    for( size_t iByte = 0; iByte < loadCount; ++iByte )
+    {
+        *this <<= 8;
+        m_digits[0] |= bytes[iByte];
+        ++m_numDigitsUsed;
+    }
+
+    clamp();
+}
+
 Comparison BigNum::compareMagnitude( const BigNum & other ) const
 {
     if( m_numDigitsUsed > other.m_numDigitsUsed )

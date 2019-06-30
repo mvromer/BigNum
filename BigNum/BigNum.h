@@ -50,6 +50,8 @@ public:
     void clamp();
     void zero();
 
+    void loadBytes( uint8_t * bytes, size_t loadCount );
+
     bool isZero() const { return m_numDigitsUsed == 0; }
     bool isEven() const { return isZero() || (m_digits[0] & 1) == 0; }
     bool isOdd() const { return !isEven(); }
