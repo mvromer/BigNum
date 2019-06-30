@@ -50,7 +50,8 @@ public:
     void clamp();
     void zero();
 
-    void loadBytes( uint8_t * bytes, size_t loadCount );
+    void loadBytes( const uint8_t * bytes, size_t count, bool preZero = true );
+    void storeBytes( uint8_t * bytes, size_t count );
 
     bool isZero() const { return m_numDigitsUsed == 0; }
     bool isEven() const { return isZero() || (m_digits[0] & 1) == 0; }

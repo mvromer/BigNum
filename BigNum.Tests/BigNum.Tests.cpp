@@ -320,5 +320,33 @@ namespace BigNumTests
 
             Assert::IsTrue( a.compare( b ) == Comparison::Equal );
         }
+
+        TEST_METHOD( TestStoreBytes )
+        {
+            BigNum a;
+            std::vector<uint8_t> inputBytes{ 8, 0, 0, 0 };
+            a.loadBytes( inputBytes.data(), inputBytes.size() );
+
+            std::vector<uint8_t> outputBytes( inputBytes.size() );
+            a.storeBytes( outputBytes.data(), outputBytes.size() );
+
+            Assert::IsTrue( inputBytes == outputBytes );
+        }
+
+        TEST_METHOD( TestLoadBytesPreZero )
+        {
+            BigNum actual;
+            std::vector<uint8_t> firstPayload{ 8, 0 };
+            std::vector<uint8_t> secondPayload{ 4, 0 };
+            constexpr bool preZero = false;
+            actual.loadBytes( firstPayload.data(), firstPayload.size() );
+            actual.loadBytes( secondPayload.data(), secondPayload.size(), preZero );
+
+            BigNum expected;
+            std::vector<uint8_t> totalPayload{ 8, 0, 4, 0 };
+            expected.loadBytes( totalPayload.data(), totalPayload.size() );
+
+            Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
+        }
 	};
 }

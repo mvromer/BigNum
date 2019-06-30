@@ -98,14 +98,15 @@ void BigNum::zero()
     std::fill( m_digits.begin(), m_digits.end(), 0 );
 }
 
-void BigNum::loadBytes( uint8_t * bytes, size_t loadCount )
+void BigNum::loadBytes( const uint8_t * bytes, size_t count, bool preZero )
 {
     if( bytes == nullptr )
         return;
 
-    zero();
+    if( preZero )
+        zero();
 
-    for( size_t iByte = 0; iByte < loadCount; ++iByte )
+    for( size_t iByte = 0; iByte < count; ++iByte )
     {
         *this <<= 8;
         m_digits[0] |= bytes[iByte];
@@ -113,6 +114,20 @@ void BigNum::loadBytes( uint8_t * bytes, size_t loadCount )
     }
 
     clamp();
+}
+
+void BigNum::storeBytes( uint8_t * bytes, size_t count )
+{
+    if( bytes == nullptr )
+        return;
+
+    BigNum x( *this );
+
+    for( size_t iByte = 0; iByte < count; ++iByte )
+    {
+        bytes[count - iByte - 1] = static_cast<uint8_t>(x.m_digits[0] & 0xFF);
+        x >>= 8;
+    }
 }
 
 Comparison BigNum::compareMagnitude( const BigNum & other ) const
