@@ -318,5 +318,28 @@ namespace BigNumTests
 
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
+
+        TEST_METHOD( TestRoundTripSwizzle )
+        {
+            constexpr bool swizzle = true;
+
+            BigNum::digit_t inputValue = 134217728;
+            BigNum input( reinterpret_cast<uint8_t *>(&inputValue),
+                sizeof( inputValue ),
+                swizzle,
+                sizeof( BigNum::digit_t ) );
+
+            Assert::AreEqual( 1u, input.numberDigits() );
+            Assert::AreEqual( input.getDigit( 0 ), 134217728u );
+            Assert::IsFalse( input.isNegative() );
+
+            BigNum::digit_t outputValue = 0;
+            input.storeBytes( reinterpret_cast<uint8_t *>(&outputValue),
+                sizeof( outputValue ),
+                swizzle,
+                sizeof( BigNum::digit_t ) );
+
+            Assert::AreEqual( inputValue, outputValue );
+        }
 	};
 }

@@ -55,7 +55,9 @@ public:
 
     void loadBytes( const uint8_t * bytes, size_t count, bool preZero = true,
         bool swizzle = false, size_t swizzleSize = 1 );
-    void storeBytes( uint8_t * bytes, size_t count );
+
+    void storeBytes( uint8_t * bytes, size_t count,
+        bool swizzle = false, size_t swizzleSize = 1 );
 
     bool isZero() const { return m_numDigitsUsed == 0; }
     bool isEven() const { return isZero() || (m_digits[0] & 1) == 0; }
@@ -146,6 +148,9 @@ private:
     BigNum & baselineMultiply( const BigNum & rhs, size_t numDigits );
 
     void divide( const BigNum & rhs, BigNum & q, BigNum & r );
+
+    static size_t computeByteOffsetNoSwizzle( size_t swizzleSize, size_t swizzleOffset ) { return swizzleOffset;  }
+    static size_t computeByteOffsetSwizzle( size_t swizzleSize, size_t swizzleOffset ) { return swizzleSize - 1 - swizzleOffset; }
 
 private:
     bool m_negative;

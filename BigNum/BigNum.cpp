@@ -121,12 +121,15 @@ void BigNum::loadBytes( const uint8_t * bytes, size_t count, bool preZero,
     if( preZero )
         zero();
 
+    const auto computeByteOffset = swizzle ? computeByteOffsetSwizzle : computeByteOffsetNoSwizzle;
+    
     for( size_t iByte = 0; iByte <= (count - swizzleSize); iByte += swizzleSize )
     {
         for( size_t swizzleOffset = 0; swizzleOffset < swizzleSize; ++swizzleOffset )
         {
             *this <<= 8;
-            m_digits[0] |= bytes[iByte + swizzleSize - 1 - swizzleOffset];
+            const size_t iRead = iByte + computeByteOffset( swizzleSize, swizzleOffset );
+            m_digits[0] |= bytes[iRead];
             ++m_numDigitsUsed;
         }
     }
@@ -134,17 +137,26 @@ void BigNum::loadBytes( const uint8_t * bytes, size_t count, bool preZero,
     clamp();
 }
 
-void BigNum::storeBytes( uint8_t * bytes, size_t count )
+void BigNum::storeBytes( uint8_t * bytes, size_t count,
+    bool swizzle, size_t swizzleSize )
 {
     if( bytes == nullptr )
         return;
 
-    BigNum x( *this );
+    if( count % swizzleSize != 0 )
+        throw std::invalid_argument( "Swizzle size must be multiple of store size." );
 
-    for( size_t iByte = 0; iByte < count; ++iByte )
+    BigNum x( *this );
+    const auto computeByteOffset = swizzle ? computeByteOffsetSwizzle : computeByteOffsetNoSwizzle;
+
+    for( size_t iByte = 0; iByte <= (count - swizzleSize); iByte += swizzleSize )
     {
-        bytes[count - iByte - 1] = static_cast<uint8_t>(x.m_digits[0] & 0xFF);
-        x >>= 8;
+        for( size_t swizzleOffset = 0; swizzleOffset < swizzleSize; ++swizzleOffset )
+        {
+            const size_t iWrite = iByte + computeByteOffset( swizzleSize, swizzleOffset );
+            bytes[count - 1 - iWrite] = static_cast<uint8_t>(x.m_digits[0] & 0xFF);
+            x >>= 8;
+        }
     }
 }
 
