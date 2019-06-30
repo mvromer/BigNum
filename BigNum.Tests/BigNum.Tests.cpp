@@ -363,7 +363,7 @@ namespace BigNumTests
 
             const char plaintext[] = "Hello !";
             const uint64_t modulusValue[] = { 0xe037d35a8b160eb7U,  0xf11919bfef440917U };
-            const uint64_t publicExpValue = 65337;
+            const uint64_t publicExpValue = 65537;
             const uint64_t privateExpValue[] = { 0x00cab10ccaa4437b67U,  0x11c977a277fe00a1U };
 
             const BigNum modulus( reinterpret_cast<const uint8_t *>(&modulusValue),
@@ -389,8 +389,25 @@ namespace BigNumTests
 
             uint64_t cipher[2];
             rsaEncrypt( reinterpret_cast<const uint8_t *>(plaintext), sizeof( plaintext ),
-                reinterpret_cast<uint8_t *>(&cipher), sizeof( cipher ),
+                reinterpret_cast<uint8_t *>(cipher), sizeof( cipher ),
                 modulus, publicExp, nInv, r, r2 );
+
+            char decryptedText[16];
+            size_t outputBytesWritten;
+            rsaDecrypt( reinterpret_cast<const uint8_t *>(cipher), sizeof( cipher ),
+                reinterpret_cast<uint8_t *>(decryptedText), sizeof( decryptedText ), outputBytesWritten,
+                modulus, privateExp, nInv, r, r2 );
+
+            Assert::AreEqual( sizeof( plaintext ), outputBytesWritten );
+            Assert::AreEqual( std::string( plaintext ), std::string( decryptedText ) );
+        }
+
+        TEST_METHOD( TestRightDigitShiftBug )
+        {
+            const BigNum expected( std::vector<uint8_t>{ 255, 255, 255, 0, 0, 0 } );
+            BigNum actual( std::vector<uint8_t>{ 255, 255, 255, 0, 0, 0, 0 } );
+            actual >>= 8;
+            Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
 	};
 }

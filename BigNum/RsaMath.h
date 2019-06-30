@@ -16,4 +16,9 @@ void rsaEncrypt( const uint8_t * input, size_t inputLength, uint8_t * output, si
     const BigNum & n, const BigNum & e, BigNum::digit_t nInv,
     const BigNum & r, const BigNum & r2 );
 
+void rsaDecrypt( const uint8_t * input, size_t inputLength, uint8_t * output,
+    size_t outputLength, size_t & outputBytesWritten,
+    const BigNum & n, const BigNum & e, BigNum::digit_t nInv,
+    const BigNum & r, const BigNum & r2 );
+
 #endif

@@ -185,3 +185,33 @@ void rsaEncrypt( const uint8_t * input, size_t inputLength, uint8_t * output, si
         outputBlock.storeBytes( output + bytesWritten, bytesPerOutputBlock );
     }
 }
+
+void rsaDecrypt( const uint8_t * input, size_t inputLength,
+    uint8_t * output, size_t outputLength, size_t & outputBytesWritten,
+    const BigNum & n, const BigNum & e, BigNum::digit_t nInv,
+    const BigNum & r, const BigNum & r2 )
+{
+    const size_t bytesPerInputBlock = n.numberBytes();
+
+    if( inputLength % bytesPerInputBlock != 0 )
+        throw std::invalid_argument( "Input buffer length must be multiple of key size." );
+
+    BigNum inputBlock;
+    BigNum outputBlock;
+
+    outputBytesWritten = 0;
+    for( size_t bytesRead = 0;
+        (bytesRead + bytesPerInputBlock) <= inputLength;
+        bytesRead += bytesPerInputBlock )
+    {
+        inputBlock.loadBytes( input + bytesRead, bytesPerInputBlock );
+        outputBlock = montgomery_exponentiation( inputBlock, e, n, nInv, r, r2 );
+        const size_t numOutputBytes = outputBlock.numberBytes();
+
+        if( (outputBytesWritten + numOutputBytes) > outputLength )
+            throw std::runtime_error( "Insufficient space in output buffer." );
+
+        outputBlock.storeBytes( output + outputBytesWritten, numOutputBytes );
+        outputBytesWritten += numOutputBytes;
+    }
+}
