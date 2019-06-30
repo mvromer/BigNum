@@ -178,5 +178,24 @@ namespace BigNumTests
             BigNum actual = a * 8;
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
+
+        TEST_METHOD( TestMontgomeryMultiply )
+        {
+            BigNum x;
+            x = 7;
+
+            BigNum y;
+            y = 15;
+
+            BigNum m;
+            m = 17;
+
+            BigNum r;
+            r = 1;
+            r.leftDigitShift( m.numberDigits() );
+
+            BigNum::digit_t mInv = compute_montgomery_exponentiation_inverse( m );
+            BigNum prod = montgomery_multiply( x, y, m, mInv, r );
+        }
 	};
 }
