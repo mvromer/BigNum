@@ -316,8 +316,8 @@ BigNum & BigNum::rightDigitShift( size_t numDigits )
     for( size_t iStep = 0; iStep < newNumDigitsUsed; ++iStep )
     {
         m_digits[iTrail] = m_digits[iLead];
-        --iTrail;
-        --iLead;
+        ++iTrail;
+        ++iLead;
     }
 
     for( size_t iDigit = newNumDigitsUsed; iDigit < m_numDigitsUsed; ++iDigit )
