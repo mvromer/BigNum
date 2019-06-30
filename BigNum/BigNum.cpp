@@ -10,6 +10,41 @@ constexpr size_t BaseCapacity = 4;
 
 }
 
+BigNum::biterator::biterator( const BigNum & number ) : m_number( number )
+{
+    if( m_number.isZero() )
+    {
+        m_iCurrentDigit = 0;
+        m_currentBitInDigitMask = 0;
+    }
+    else
+    {
+        m_iCurrentDigit = m_number.m_numDigitsUsed - 1;
+
+        // If this is zero, it really means there are DigitBits number of bits in the leading digit.
+        size_t numLeadingDigitBits = m_number.numberBits() % DigitBits;
+        if( numLeadingDigitBits == 0 )
+            numLeadingDigitBits = DigitBits;
+
+        m_currentBitInDigitMask = DigitOne << (numLeadingDigitBits - 1);
+    }
+}
+
+BigNum::digit_t BigNum::biterator::nextBit()
+{
+    digit_t value = m_number.m_digits[m_iCurrentDigit] & m_currentBitInDigitMask;
+    m_currentBitInDigitMask >>= 1;
+
+    if( m_currentBitInDigitMask == 0 && m_iCurrentDigit > 0 )
+    {
+        --m_iCurrentDigit;
+        m_currentBitInDigitMask = DigitOne << (DigitBits - 1);
+    }
+
+    return value;
+}
+
+
 BigNum::BigNum() : BigNum( BaseCapacity ) { }
 
 BigNum::BigNum( size_t capacity ) :
@@ -334,7 +369,7 @@ BigNum & BigNum::operator-=( const BigNum & rhs )
 BigNum & BigNum::operator*=( const BigNum & rhs )
 {
     // This only supports the baseline multiplier from BigNum Math and none of the fancier methods.
-    m_negative = (m_negative == rhs.m_negative);
+    m_negative = (m_negative != rhs.m_negative);
     baselineMultiply( rhs, m_numDigitsUsed + rhs.m_numDigitsUsed + 1 );
     return *this;
 }

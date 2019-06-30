@@ -37,6 +37,20 @@ public:
     typedef uint32_t digit_t;
     typedef uint64_t word_t;
 
+    struct biterator
+    {
+        explicit biterator( const BigNum & number );
+
+        bool hasBits() const { return m_currentBitInDigitMask > 0; }
+
+        digit_t nextBit();
+
+    private:
+        const BigNum & m_number;
+        digit_t m_currentBitInDigitMask;
+        size_t m_iCurrentDigit;
+    };
+
 public:
     BigNum();
     explicit BigNum( size_t capacity );
@@ -48,6 +62,8 @@ public:
     digit_t getDigit( size_t iDigit ) const { return m_digits[iDigit]; }
 
     size_t numberBits() const;
+
+    biterator createBiterator() const { return biterator( *this ); }
 
     void grow( size_t newCapacity );
     void clamp();

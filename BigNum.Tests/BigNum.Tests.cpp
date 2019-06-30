@@ -238,5 +238,74 @@ namespace BigNumTests
             expected = 4;
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
+
+        TEST_METHOD( TestBiterator )
+        {
+            BigNum x;
+            x = 36;
+
+            auto bi = x.createBiterator();
+            Assert::AreNotEqual( bi.nextBit(), 0u );
+            Assert::AreEqual( bi.nextBit(), 0u );
+            Assert::AreEqual( bi.nextBit(), 0u );
+            Assert::AreNotEqual( bi.nextBit(), 0u );
+            Assert::AreEqual( bi.nextBit(), 0u );
+            Assert::AreEqual( bi.nextBit(), 0u );
+            Assert::IsFalse( bi.hasBits() );
+        }
+
+        TEST_METHOD( TestModularExponentiation )
+        {
+            BigNum b;
+            b = 4;
+
+            BigNum e;
+            e = 13;
+
+            BigNum n;
+            n = 497;
+
+            BigNum r;
+            r = 1;
+            r.leftDigitShift( n.numberDigits() ).mod( n );
+
+            BigNum r2( r * r );
+            r2.mod( n );
+
+            BigNum::digit_t mInv = compute_montgomery_inverse( n );
+
+            BigNum actual( montgomery_exponentiation( b, e, n, mInv, r, r2 ) );
+        }
+
+        TEST_METHOD( TestRsa )
+        {
+            BigNum m;
+            BigNum m2;
+            BigNum c;
+            BigNum e;
+            BigNum d;
+            BigNum n;
+            BigNum r;
+
+            m = 65;
+            e = 17;
+            d = 413;
+            n = 3233;
+            r = 1;
+            r.leftDigitShift( n.numberDigits() ).mod( n );
+
+            BigNum r2( r * r );
+            r2.mod( n );
+
+            BigNum::digit_t nInv = compute_montgomery_inverse( n );
+
+            // Encrypt.
+            c = montgomery_exponentiation( m, e, n, nInv, r, r2 );
+
+            // Decrypt.
+            m2 = montgomery_exponentiation( c, d, n, nInv, r, r2 );
+
+            Assert::IsTrue( m.compare( m2 ) == Comparison::Equal );
+        }
 	};
 }

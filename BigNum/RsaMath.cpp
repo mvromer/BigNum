@@ -126,3 +126,25 @@ BigNum montgomery_multiply( const BigNum & x, const BigNum & y,
 
     return a;
 }
+
+// Based on HAC algorithm 14.94.
+BigNum montgomery_exponentiation( const BigNum & x, const BigNum & e,
+    const BigNum & m, BigNum::digit_t mInv,
+    const BigNum & r, const BigNum & r2 )
+{
+    const BigNum xBar( montgomery_multiply( x, r2, m, mInv ) );
+    BigNum a( r );
+
+    auto iExponentBits = e.createBiterator();
+    while( iExponentBits.hasBits() )
+    {
+        a = montgomery_multiply( a, a, m, mInv );
+        if( iExponentBits.nextBit() != 0 )
+            a = montgomery_multiply( a, xBar, m, mInv );
+    }
+
+    BigNum one;
+    one = 1;
+
+    return montgomery_multiply( a, one, m, mInv );
+}
