@@ -91,7 +91,7 @@ size_t BigNum::numberBytes() const
 
 void BigNum::grow( size_t newCapacity )
 {
-    if( m_digits.capacity() >= newCapacity )
+    if( m_digits.size() >= newCapacity )
         return;
 
     // Note: vector.resize zero-initializes newly inserted elements.

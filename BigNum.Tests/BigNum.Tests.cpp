@@ -409,5 +409,57 @@ namespace BigNumTests
             actual >>= 8;
             Assert::IsTrue( expected.compare( actual ) == Comparison::Equal );
         }
+
+        TEST_METHOD( TestRoundTripRsaEncrypt256 )
+        {
+            const char plaintext[] = ("This a demo of the alternate accelerator interface. "
+                "This is a secret message. "
+                "This took a long time to get working right.");
+
+            const uint8_t modulusValue[] = {
+                0xb8, 0x95, 0x76, 0x2c, 0x77, 0xc2, 0xdb, 0x98, 0x78, 0x46, 0x18, 0x18, 0xed, 0x75, 0x55, 0xfa,
+                0xa6, 0xbe, 0x1d, 0xca, 0x8a, 0xe7, 0x5a, 0xb9, 0xf2, 0x13, 0x13, 0xdf, 0x38, 0x69, 0xb7, 0x95
+            };
+            const uint8_t publicExpValue[] = { 0x01, 0x00, 0x01 };
+            const uint8_t privateExpValue[] = {
+                0x6d, 0x1f, 0x2e, 0xf5, 0xaa, 0xf7, 0x6f, 0x8a, 0xfb, 0xcf, 0xb4, 0x7f, 0x48, 0x22, 0x8d, 0xe8,
+                0xd4, 0x41, 0xce, 0xd1, 0x6d, 0x68, 0x60, 0x19, 0x02, 0x02, 0x5d, 0x69, 0x31, 0xb3, 0x32, 0x01
+            };
+
+            const BigNum modulus( modulusValue, sizeof( modulusValue ) );
+            const BigNum publicExp( publicExpValue, sizeof( publicExpValue ) );
+            const BigNum privateExp( privateExpValue, sizeof( privateExpValue ) );
+
+            BigNum r( std::vector<uint8_t>{ 1 } );
+            r.leftDigitShift( modulus.numberDigits() ).mod( modulus );
+
+            const BigNum r2 = (r * r).mod( modulus );
+            const BigNum::digit_t nInv = compute_montgomery_inverse( modulus );
+
+            size_t minOutputLength;
+
+            {
+                const size_t rsaBitLength = modulus.numberBits();
+                const size_t bytesPerInputBlock = (rsaBitLength - 1) / 8;
+                const size_t bytesPerOutputBlock = modulus.numberBytes();
+                const size_t numInputBlocks = (sizeof(plaintext) / bytesPerInputBlock) + (sizeof(plaintext) % bytesPerInputBlock == 0 ? 0 : 1);
+                minOutputLength = numInputBlocks * bytesPerOutputBlock;
+            }
+
+            std::vector<uint8_t> cipher( minOutputLength );
+            rsaEncrypt( reinterpret_cast<const uint8_t *>(plaintext), sizeof( plaintext ),
+                cipher.data(), cipher.size(),
+                modulus, publicExp, nInv, r, r2 );
+
+            std::vector<uint8_t> decrypted( cipher.size() );
+            size_t outputBytesWritten;
+            rsaDecrypt( cipher.data(), cipher.size(),
+                decrypted.data(), decrypted.size(), outputBytesWritten,
+                modulus, privateExp, nInv, r, r2 );
+
+            Assert::AreEqual( sizeof( plaintext ), outputBytesWritten );
+            Assert::AreEqual( std::string( plaintext, sizeof( plaintext ) ),
+                std::string( reinterpret_cast<char *>(decrypted.data()), outputBytesWritten ) );
+        }
 	};
 }
