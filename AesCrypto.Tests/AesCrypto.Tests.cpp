@@ -35,9 +35,13 @@ namespace AesCryptoTests
 		        0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4
             };
 
+            unsigned char decrypted_text[32];
+
             aesEncrypt( plaintext, sizeof( plaintext ), iv, key, enc_buf );
+            aesEncrypt( enc_buf, sizeof( plaintext ), iv, key, decrypted_text );
 
             Assert::AreEqual( 0, memcmp( enc_buf, ciphertext, 32 ) );
+            Assert::AreEqual( 0, memcmp( decrypted_text, plaintext, 32 ) );
 		}
 
         /*TEST_METHOD( TestSample )
